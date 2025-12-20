@@ -13,12 +13,6 @@
     "128": "extension_icon128.png"
   },
   "background": { "service_worker": "background.js" },
-  "commands": {
-    "open‑panel": {
-      "suggested_key": { "default": "Ctrl+Shift+L" },
-      "description": "Show the popup panel"
-    }
-  },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],

@@ -18,20 +18,7 @@ async function createMenus() {
   })
 }
 
-chrome.commands.onCommand.addListener(async (command) => {
-  console.log(`command enter`)
-  if (command !== 'open‑panel') return
-  chrome.action.openPopup?.()
-})
-
 chrome.runtime.onInstalled.addListener(async () => {
-  console.log(
-    '%c🗾 Welcome! Sponsor☕ http://buymeacoffee.com/amsy',
-    'padding: .5rem .6rem;background-color: black; color: white; border-radius: 5px; border: 1px solid #1f1f1f;'
-  )
-  await createMenus()
-})
-chrome.runtime.onStartup.addListener(async () => {
   console.log(
     '%c🗾 Welcome! Sponsor☕ http://buymeacoffee.com/amsy',
     'padding: .5rem .6rem;background-color: black; color: white; border-radius: 5px; border: 1px solid #1f1f1f;'
