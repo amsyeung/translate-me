@@ -1,0 +1,77 @@
+[
+  { "tag": "ar", "lang": "Arabic", "regions": ["ar-SA"], "descriptions": ["Arabic (Saudi Arabia)"] },
+  { "tag": "bn", "lang": "Bangla", "regions": ["bn-BD", "bn-IN"], "descriptions": ["Bangla (Bangladesh)", "Bangla (India)"] },
+  { "tag": "cs", "lang": "Czech", "regions": ["cs-CZ"], "descriptions": ["Czech (Czech Republic)"] },
+  { "tag": "da", "lang": "Danish", "regions": ["da-DK"], "descriptions": ["Danish (Denmark)"] },
+  {
+    "tag": "de",
+    "lang": "German",
+    "regions": ["de-AT", "de-CH", "de-DE"],
+    "descriptions": ["Austrian German", "\"Swiss\" German", "Standard German (as spoken in Germany)"]
+  },
+  { "tag": "el", "lang": "Greek", "regions": ["el-GR"], "descriptions": ["Modern Greek"] },
+  {
+    "tag": "en",
+    "lang": "English",
+    "regions": ["en-AU", "en-CA", "en-GB", "en-IE", "en-IN", "en-NZ", "en-US", "en-ZA"],
+    "descriptions": [
+      "Australian English",
+      "Canadian English",
+      "British English",
+      "Irish English",
+      "Indian English",
+      "New Zealand English",
+      "US English",
+      "English (South Africa)"
+    ]
+  },
+  {
+    "tag": "es",
+    "lang": "Spanish",
+    "regions": ["es-AR", "es-CL", "es-CO", "es-ES", "es-MX", "es-US"],
+    "descriptions": [
+      "Argentine Spanish",
+      "Chilean Spanish",
+      "Colombian Spanish",
+      "Castilian Spanish (as spoken in Central-Northern Spain)",
+      "Mexican Spanish",
+      "American Spanish"
+    ]
+  },
+  { "tag": "fi", "lang": "Finnish", "regions": ["fi-FI"], "descriptions": ["Finnish (Finland)"] },
+  {
+    "tag": "fr",
+    "lang": "French",
+    "regions": ["fr-BE", "fr-CA", "fr-CH", "fr-FR"],
+    "descriptions": ["Belgian French", "Canadian French", "\"Swiss\" French", "Standard French (especially in France)"]
+  },
+  { "tag": "he", "lang": "Hebrew", "regions": ["he-IL"], "descriptions": ["Hebrew (Israel)"] },
+  { "tag": "hi", "lang": "Hindi", "regions": ["hi-IN"], "descriptions": ["Hindi (India)"] },
+  { "tag": "hu", "lang": "Hungarian", "regions": ["hu-HU"], "descriptions": ["Hungarian (Hungary)"] },
+  { "tag": "id", "lang": "Indonesian", "regions": ["id-ID"], "descriptions": ["Indonesian (Indonesia)"] },
+  { "tag": "it", "lang": "Italian", "regions": ["it-CH", "it-IT"], "descriptions": ["\"Swiss\" Italian", "Standard Italian (as spoken in Italy)"] },
+  { "tag": "ja", "lang": "Japanese", "regions": ["ja-JP"], "descriptions": ["Japanese (Japan)"] },
+  { "tag": "ko", "lang": "Korean", "regions": ["ko-KR"], "descriptions": ["Korean (Republic of Korea)"] },
+  { "tag": "nl", "lang": "Dutch", "regions": ["nl-BE", "nl-NL"], "descriptions": ["Belgian Dutch", "Standard Dutch (as spoken in The Netherlands)"] },
+  { "tag": "no", "lang": "Norwegian", "regions": ["no-NO"], "descriptions": ["Norwegian (Norway)"] },
+  { "tag": "pl", "lang": "Polish", "regions": ["pl-PL"], "descriptions": ["Polish (Poland)"] },
+  {
+    "tag": "pt",
+    "lang": "Portuguese",
+    "regions": ["pt-BR", "pt-PT"],
+    "descriptions": ["Brazilian Portuguese", "European Portuguese (as written and spoken in Portugal)"]
+  },
+  { "tag": "ro", "lang": "Romanian", "regions": ["ro-RO"], "descriptions": ["Romanian (Romania)"] },
+  { "tag": "ru", "lang": "Russian", "regions": ["ru-RU"], "descriptions": ["Russian (Russian Federation)"] },
+  { "tag": "sk", "lang": "Slovak", "regions": ["sk-SK"], "descriptions": ["Slovak (Slovakia)"] },
+  { "tag": "sv", "lang": "Swedish", "regions": ["sv-SE"], "descriptions": ["Swedish (Sweden)"] },
+  { "tag": "ta", "lang": "Tamil", "regions": ["ta-IN", "ta-LK"], "descriptions": ["Indian Tamil", "Sri Lankan Tamil"] },
+  { "tag": "th", "lang": "Thai", "regions": ["th-TH"], "descriptions": ["Thai (Thailand)"] },
+  { "tag": "tr", "lang": "Turkish", "regions": ["tr-TR"], "descriptions": ["Turkish (Turkey)"] },
+  {
+    "tag": "zh",
+    "lang": "Chinese",
+    "regions": ["zh-CN", "zh-HK", "zh-TW"],
+    "descriptions": ["Mainland China, simplified characters", "Hong Kong, traditional characters", "Taiwan, traditional characters"]
+  }
+]
