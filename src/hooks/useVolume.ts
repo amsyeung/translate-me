@@ -5,8 +5,7 @@ export function useVolume(defaultValue = 1) {
 
   useEffect(() => {
     if (chrome.storage) {
-      // @ts-ignore
-      chrome.storage.sync.get({ volume: defaultValue }, (data) => useVolume(data.volume))
+      chrome.storage.sync.get({ volume: defaultValue }, (data: Storage) => useVolume(data.volume))
     }
   }, [])
 

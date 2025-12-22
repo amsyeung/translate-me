@@ -1,26 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
+import type { TranslatorResult, Monitor, TranslatorStatic } from '@/types/translator'
 
-interface Monitor {
-  addEventListener(
-    type: 'downloadprogress',
-    listener: (this: Monitor, ev: DownloadProgressEventTarget) => void,
-    options?: boolean | AddEventListenerOptions
-  ): void
-}
-
-interface DownloadProgressEventTarget extends EventTarget {
-  loaded: number
-}
-
-export type TranslatorResult = {
-  translated: string
-}
+declare const Translator: TranslatorStatic;
 
 export const useTranslator = (sourceText: string, srcLang: string, tgtLang: string) => {
   const [result, setResult] = useState<TranslatorResult | null>(null)
   const [loading, setLoading] = useState(false)
-  // @ts-ignore
-  const timerRef = useRef<NodeJS.Timeout | null>(null)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     // console.log(`srcLang: ${srcLang}`)
@@ -34,7 +20,6 @@ export const useTranslator = (sourceText: string, srcLang: string, tgtLang: stri
 
     const run = async () => {
       try {
-        // @ts-ignore
         const availability = await Translator.availability({
           sourceLanguage: srcLang,
           targetLanguage: tgtLang,
@@ -43,7 +28,6 @@ export const useTranslator = (sourceText: string, srcLang: string, tgtLang: stri
         let translator
         if (availability === 'downloadable') {
           setLoading(true)
-          // @ts-ignore
           translator = await Translator.create({
             sourceLanguage: srcLang,
             targetLanguage: tgtLang,
@@ -58,7 +42,6 @@ export const useTranslator = (sourceText: string, srcLang: string, tgtLang: stri
           setResult({ translated: sourceText })
           return
         } else {
-          // @ts-ignore
           translator = await Translator.create({
             sourceLanguage: srcLang,
             targetLanguage: tgtLang,
@@ -74,8 +57,6 @@ export const useTranslator = (sourceText: string, srcLang: string, tgtLang: stri
         setLoading(false)
       }
     }
-
-    // run()
 
     if (timerRef.current !== null) {
       clearTimeout(timerRef.current)

@@ -5,8 +5,7 @@ export function usePitch(defaultValue = 1.2) {
 
   useEffect(() => {
     if (chrome.storage) {
-      // @ts-ignore
-      chrome.storage.sync.get({ pitch: defaultValue }, (data) => setPitch(data.pitch))
+      chrome.storage.sync.get({ pitch: defaultValue }, (data: Storage ) => setPitch(data.pitch))
     }
   }, [])
 

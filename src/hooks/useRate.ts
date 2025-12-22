@@ -5,8 +5,7 @@ export function useRate(defaultValue = 0.9) {
 
   useEffect(() => {
     if (chrome.storage) {
-      // @ts-ignore
-      chrome.storage.sync.get({ rate: defaultValue }, (data) => setRate(data.rate))
+      chrome.storage.sync.get({ rate: defaultValue }, (data: Storage) => setRate(data.rate))
     }
   }, [])
 

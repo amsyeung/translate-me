@@ -12,16 +12,11 @@ export default function Options() {
   // Load current value on mount
   useEffect(() => {
     if (chrome.storage) {
-      // @ts-ignore
-      chrome.storage.sync.get({ srcLang: '' }, (data) => setSrcLang(data.srcLang))
-      // @ts-ignore
-      chrome.storage.sync.get({ tgtLang: 'en' }, (data) => setTgtLang(data.tgtLang))
-      // @ts-ignore
-      chrome.storage.sync.get({ pitch: 1.2 }, (data) => setPitch(data.pitch))
-      // @ts-ignore
-      chrome.storage.sync.get({ rate: 0.9 }, (data) => setRate(data.rate))
-      // @ts-ignore
-      chrome.storage.sync.get({ volume: 1 }, (data) => setVolume(data.volume))
+      chrome.storage.sync.get({ srcLang: '' }, (data: Storage) => setSrcLang(data.srcLang))
+      chrome.storage.sync.get({ tgtLang: 'en' }, (data: Storage) => setTgtLang(data.tgtLang))
+      chrome.storage.sync.get({ pitch: 1.2 }, (data: Storage) => setPitch(data.pitch))
+      chrome.storage.sync.get({ rate: 0.9 }, (data: Storage) => setRate(data.rate))
+      chrome.storage.sync.get({ volume: 1 }, (data: Storage) => setVolume(data.volume))
     }
   }, [])
 

@@ -4,6 +4,11 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: {
+      '@': './src',
+    },
+  },
   build: {
     outDir: 'dist',
     rollupOptions: {

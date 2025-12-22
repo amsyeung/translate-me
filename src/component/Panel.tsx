@@ -17,7 +17,6 @@ export default function Panel() {
   const { result: translation, loading: translating } = useTranslator(sourceText, (srcLang || detected?.language) ?? '', tgtLang)
 
   const toggle = () => {
-    // console.log(`toggle`)
     setSourceText(translatedText)
     setSrcLang(tgtLang)
     setTgtLang((srcLang || detected?.language) ?? '')
@@ -25,10 +24,8 @@ export default function Panel() {
 
   useEffect(() => {
     if (chrome.storage) {
-      // @ts-ignore
-      chrome.storage.sync.get({ srcLang: '' }, (data) => setSrcLang(data.srcLang))
-      // @ts-ignore
-      chrome.storage.sync.get({ tgtLang: 'en' }, (data) => setTgtLang(data.tgtLang))
+      chrome.storage.sync.get({ srcLang: '' }, (data: Storage) => setSrcLang(data.srcLang))
+      chrome.storage.sync.get({ tgtLang: 'en' }, (data: Storage) => setTgtLang(data.tgtLang))
     }
   }, [])
 
