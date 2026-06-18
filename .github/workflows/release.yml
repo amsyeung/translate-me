@@ -1,6 +1,5 @@
 name: Build & Create Release with Dist Zip
 
-# Support tag push auto release + manual trigger button
 on:
   push:
     tags:
@@ -24,17 +23,32 @@ jobs:
         with:
           ref: ${{ github.event.inputs.target_ref || github.ref }}
 
-      - name: Setup Node.js
+      - name: Setup Node.js v22 LTS
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
 
+      # 安裝 pnpm
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      # 快取 pnpm lock & node_modules
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.local/share/pnpm/store
+            node_modules
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+
+      # 嚴格依照 pnpm-lock.yaml 安裝依賴（替代 npm ci）
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Build extension (generate dist/)
-        run: npm run build
+        run: pnpm run build
 
       - name: Zip dist folder
         run: zip -r translate-me-${{ github.ref_name }}.zip dist/
