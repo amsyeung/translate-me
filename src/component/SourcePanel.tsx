@@ -46,7 +46,7 @@ export default function SourcePanel({
           alt="Copy Icon"
         />
         <img
-          onClick={() => speak(!ref.current ? '' : ref.current.value, language, { pitch: pitch, rate: rate, volume: volume })}
+          onClick={() => speak(!ref.current ? '' : ref.current.value, detectedLang || "", { pitch: pitch, rate: rate, volume: volume })}
           className="active:scale-[1.1]"
           src={'/speaker.png'}
           width={15}
