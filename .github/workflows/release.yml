@@ -1,12 +1,19 @@
 name: Build & Create Release with Dist Zip
 
+# Support tag push auto release + manual trigger button
 on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      target_ref:
+        description: Target git tag/branch to build
+        required: true
+        default: main
 
 permissions:
-  contents: write # release, upload
+  contents: write # Permission to create release & upload assets
 
 jobs:
   build-and-release:
@@ -14,6 +21,8 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.target_ref || github.ref }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -30,11 +39,9 @@ jobs:
       - name: Zip dist folder
         run: zip -r translate-me-${{ github.ref_name }}.zip dist/
 
-      - name: Create GitHub Release & Upload dist.zip
+      - name: Create GitHub Release & Upload zip asset
         uses: softprops/action-gh-release@v2
         with:
-          files: dist.zip
-          # Release title
+          files: translate-me-${{ github.ref_name }}.zip
           name: Release ${{ github.ref_name }}
-          # auto-print commit as logs
           generate_release_notes: true
