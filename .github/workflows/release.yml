@@ -25,10 +25,10 @@ jobs:
         with:
           ref: ${{ github.event.inputs.target_ref || github.ref }}
 
-      - name: Setup Node.js v22 LTS
+      - name: Setup Node.js v24 LTS
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
