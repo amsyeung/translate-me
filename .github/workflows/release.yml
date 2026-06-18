@@ -12,11 +12,13 @@ on:
         default: main
 
 permissions:
-  contents: write # Permission to create release & upload assets
+  contents: write
 
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
+    environment:
+      name: production
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
@@ -28,13 +30,11 @@ jobs:
         with:
           node-version: 22
 
-      # 安裝 pnpm
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9
 
-      # 快取 pnpm lock & node_modules
       - name: Cache pnpm store
         uses: actions/cache@v4
         with:
@@ -43,8 +43,9 @@ jobs:
             node_modules
           key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
 
-      # 嚴格依照 pnpm-lock.yaml 安裝依賴（替代 npm ci）
       - name: Install dependencies
+        env:
+          MOTION_TOKEN: ${{ secrets.MOTION_TOKEN }}
         run: pnpm install --frozen-lockfile
 
       - name: Build extension (generate dist/)
