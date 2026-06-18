@@ -45,10 +45,10 @@ jobs:
 
       # 嚴格依照 pnpm-lock.yaml 安裝依賴（替代 npm ci）
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: dotenv pnpm install --frozen-lockfile
 
       - name: Build extension (generate dist/)
-        run: pnpm run build
+        run: dotenv pnpm run build
 
       - name: Zip dist folder
         run: zip -r translate-me-${{ github.ref_name }}.zip dist/
