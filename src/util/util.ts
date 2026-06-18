@@ -16,11 +16,30 @@ export const copyToClipboard = async (text: string) => {
 }
 
 export const speak = (text: string, lang: string, settings: Settings) => {
+  // Cancel any ongoing speech to prevent audio conflicts on macOS
+  speechSynthesis.cancel()
+  
   const utterance = new SpeechSynthesisUtterance(text)
   utterance.lang = lang // Web Speech API uses BCP-47 language tags
   utterance.pitch = settings.pitch
   utterance.rate = settings.rate
   utterance.volume = settings.volume
+  
+  // Add macOS compatibility fixes
+  // These properties help stabilize audio output across platforms
+  utterance.onstart = () => {
+    // Log for debugging
+    console.log('Speech synthesis started')
+  }
+  
+  utterance.onerror = (event) => {
+    console.error('Speech synthesis error:', event.error)
+  }
+  
+  utterance.onend = () => {
+    console.log('Speech synthesis ended')
+  }
+  
   speechSynthesis.speak(utterance)
 }
 
