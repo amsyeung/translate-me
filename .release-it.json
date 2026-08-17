@@ -1,0 +1,34 @@
+{
+  "git": {
+    "commitMessage": "chore: release v${version}",
+    "tagName": "v${version}",
+    "requireCleanWorkingDir": true,
+    "requireBranch": "main",
+    "requireCommits": true,
+    "requireCommitsFail": false
+  },
+  "npm": {
+    "publish": false
+  },
+  "github": {
+    "release": false
+  },
+  "hooks": {
+    "before:init": ["pnpm lint", "pnpm run build"],
+    "after:bump": ["node scripts/sync-manifest-version.mjs", "git add public/manifest.json"]
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "preset": "conventionalcommits",
+      "infile": "CHANGELOG.md",
+      "header": "# Changelog\nAll notable changes to this project will be documented in this file.\nSee the GitHub Releases page for detailed changelogs: https://github.com/amsyeung/translate-me/releases\n\n",
+      "types": [
+        { "type": "feat", "section": "New Features" },
+        { "type": "fix", "section": "Bug Fixes" },
+        { "type": "chore", "section": "Internal & Build" },
+        { "type": "docs", "section": "Docs" },
+        { "type": "refactor", "section": "Refactor" }
+      ]
+    }
+  }
+}
