@@ -15,8 +15,6 @@ export default defineConfig({
       input: {
         main: 'index.html',
         options: 'options.html',
-        background: 'background.js',
-        pageToast: 'pageToast.js',
       },
       output: {
         entryFileNames: '[name].js',

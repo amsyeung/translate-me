@@ -23,6 +23,18 @@ export default function SourcePanel({
   const rate = useRate(0.9)
   const volume = useVolume(1)
 
+  const handleSpeak = async () => {
+    if (!detectedLang) {
+      console.warn('[translate-me] Cannot play audio yet: source language has not been detected')
+      return
+    }
+    try {
+      await speak(!ref.current ? '' : ref.current.value, detectedLang, { pitch, rate, volume })
+    } catch (err) {
+      console.error('Speech playback failed', err)
+    }
+  }
+
   return (
     <div className="relative flex flex-col rounded-lg gap-y-1 p-3 max-w-full">
       <LanguageSelect source={true} srcLang={language} detectedLang={detectedLang} onChange={onLanguageChange} />
@@ -46,7 +58,7 @@ export default function SourcePanel({
           alt="Copy Icon"
         />
         <img
-          onClick={() => speak(!ref.current ? '' : ref.current.value, detectedLang || "", { pitch: pitch, rate: rate, volume: volume })}
+          onClick={handleSpeak}
           className="active:scale-[1.1]"
           src={'/speaker.png'}
           width={15}

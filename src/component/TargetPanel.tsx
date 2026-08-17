@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef } from 'react'
 import LoadingSpinner from './LoadingSpinner'
 import LanguageSelect from './LanguageSelect'
 import { copyToClipboard, speak } from '../util/util'
@@ -11,27 +11,28 @@ export default function TargetPanel({
   onLanguageChange,
   text,
   isLoading,
-  detectedLang,
+  targetLang,
 }: {
   language: string
   onLanguageChange: (l: string) => void
   text: string
   isLoading?: boolean
-  detectedLang: string
+  targetLang: string
 }) {
   const ref = useRef<HTMLTextAreaElement>(null)
-  const [translatedText, setTranslatedText] = useState<string>()
+  const translatedText = isLoading ? '' : text
   const pitch = usePitch(1.2)
   const rate = useRate(0.9)
   const volume = useVolume(1)
 
-  useEffect(() => {
-    if (isLoading) {
-      setTranslatedText('')
-    } else {
-      setTranslatedText(text)
+  const handleSpeak = async () => {
+    if (!targetLang) return
+    try {
+      await speak(!ref.current ? '' : ref.current.value, targetLang, { pitch, rate, volume })
+    } catch (err) {
+      console.error('Speech playback failed', err)
     }
-  }, [isLoading, text, translatedText])
+  }
 
   return (
     <div className="relative flex flex-col rounded-lg gap-y-1 p-3 max-w-full mt-3">
@@ -59,7 +60,7 @@ export default function TargetPanel({
           alt="Copy Icon"
         />
         <img
-          onClick={() => speak(!ref.current ? '' : ref.current.value, detectedLang, { pitch: pitch, rate: rate, volume: volume })}
+          onClick={handleSpeak}
           className="active:scale-[1.1]"
           src={'/speaker.png'}
           width={15}

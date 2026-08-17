@@ -70,8 +70,14 @@
   { "tag": "tr", "lang": "Turkish", "regions": ["tr-TR"], "descriptions": ["Turkish (Turkey)"] },
   {
     "tag": "zh",
-    "lang": "Chinese",
-    "regions": ["zh-CN", "zh-HK", "zh-TW"],
-    "descriptions": ["Mainland China, simplified characters", "Hong Kong, traditional characters", "Taiwan, traditional characters"]
+    "lang": "Chinese (Simplified)",
+    "regions": ["zh-CN"],
+    "descriptions": ["Mainland China, simplified characters"]
+  },
+  {
+    "tag": "zh-Hant",
+    "lang": "Chinese (Traditional)",
+    "regions": ["zh-TW", "zh-HK"],
+    "descriptions": ["Taiwan, traditional characters", "Hong Kong, traditional characters"]
   }
 ]
