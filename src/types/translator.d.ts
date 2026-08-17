@@ -104,7 +104,7 @@ export interface LanguageDetectorStatic {
    * @param options Optional configuration object (currently unused).
    * @returns A promise that resolves to an object exposing a `detect` method.
    */
-  create(options?: {}): Promise<{
+  create(options?: object): Promise<{
     detect(text: string): Promise<
       { detectedLanguage: string; confidence: number }[]
     >;

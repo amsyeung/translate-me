@@ -1,14 +1,11 @@
-async function getBCP47() {
-  const res = await fetch(chrome.runtime.getURL('bcp47.json'))
-  return res.json()
-}
+import bcp47 from './util/bcp47.json'
+import type { Bcp47Item } from './types/speech'
+import { DEFAULT_TARGET_LANG } from './constants'
 
 async function createMenus() {
-  const { tgtLang: lang } = await chrome.storage.sync.get({
-    tgtLang: 'zh-HK',
-  })
-  const data = await getBCP47()
-  const name = data.filter((b) => b.tag === lang).map((bb) => bb.lang)
+  const { tgtLang: lang } = await chrome.storage.sync.get({ tgtLang: DEFAULT_TARGET_LANG })
+  const name = (bcp47 as Bcp47Item[]).find((b) => b.tag === lang)?.lang ?? lang
+
   chrome.contextMenus.removeAll(() => {
     chrome.contextMenus.create({
       id: `translate-page-${lang}`,
@@ -34,11 +31,11 @@ chrome.storage.onChanged.addListener((changes, area) => {
 })
 
 chrome.contextMenus.onClicked.addListener(async () => {
-  const { tgtLang: choice } = await chrome.storage.sync.get({
-    tgtLang: 'zh-HK',
-  })
+  const { tgtLang: choice } = await chrome.storage.sync.get({ tgtLang: DEFAULT_TARGET_LANG })
 
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
+  if (!tab?.url) return
+
   const url = `https://translate.google.com/translate?hl=auto&sl=auto&tl=${choice}&u=${encodeURIComponent(tab.url)}`
   chrome.tabs.create({ url })
 })

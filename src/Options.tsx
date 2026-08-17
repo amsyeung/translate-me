@@ -1,10 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Divider from './component/Divider'
 import bcp47 from './util/bcp47.json'
+import { debounce } from './util/util'
+import { DEFAULT_TARGET_LANG } from './constants'
+import type { ExtensionStorage } from './types/storage'
 
 export default function Options() {
   const [srcLang, setSrcLang] = useState('')
-  const [tgtLang, setTgtLang] = useState('en')
+  const [tgtLang, setTgtLang] = useState(DEFAULT_TARGET_LANG)
   const [pitch, setPitch] = useState(1.2)
   const [rate, setRate] = useState(0.9)
   const [volume, setVolume] = useState(1)
@@ -12,48 +15,60 @@ export default function Options() {
   // Load current value on mount
   useEffect(() => {
     if (chrome.storage) {
-      chrome.storage.sync.get({ srcLang: '' }, (data: Storage) => setSrcLang(data.srcLang))
-      chrome.storage.sync.get({ tgtLang: 'en' }, (data: Storage) => setTgtLang(data.tgtLang))
-      chrome.storage.sync.get({ pitch: 1.2 }, (data: Storage) => setPitch(data.pitch))
-      chrome.storage.sync.get({ rate: 0.9 }, (data: Storage) => setRate(data.rate))
-      chrome.storage.sync.get({ volume: 1 }, (data: Storage) => setVolume(data.volume))
+      chrome.storage.sync.get({ srcLang: '' }, (data: Pick<ExtensionStorage, 'srcLang'>) => setSrcLang(data.srcLang))
+      chrome.storage.sync.get({ tgtLang: DEFAULT_TARGET_LANG }, (data: Pick<ExtensionStorage, 'tgtLang'>) => setTgtLang(data.tgtLang))
+      chrome.storage.sync.get({ pitch: 1.2 }, (data: Pick<ExtensionStorage, 'pitch'>) => setPitch(data.pitch))
+      chrome.storage.sync.get({ rate: 0.9 }, (data: Pick<ExtensionStorage, 'rate'>) => setRate(data.rate))
+      chrome.storage.sync.get({ volume: 1 }, (data: Pick<ExtensionStorage, 'volume'>) => setVolume(data.volume))
     }
   }, [])
+
+  // Slider onChange fires many times per second while dragging; debounce the
+  // chrome.storage.sync writes so we don't blow past its write-rate quota.
+  const persistPitch = useRef(
+    debounce((val: number) => {
+      if (chrome.storage) chrome.storage.sync.set({ pitch: val }).catch((err) => console.error('Failed to save pitch', err))
+    }, 200)
+  ).current
+  const persistRate = useRef(
+    debounce((val: number) => {
+      if (chrome.storage) chrome.storage.sync.set({ rate: val }).catch((err) => console.error('Failed to save rate', err))
+    }, 200)
+  ).current
+  const persistVolume = useRef(
+    debounce((val: number) => {
+      if (chrome.storage) chrome.storage.sync.set({ volume: val }).catch((err) => console.error('Failed to save volume', err))
+    }, 200)
+  ).current
 
   const handleSrcLang = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSrcLang(e.target.value)
     if (chrome.storage) {
-      chrome.storage.sync.set({ srcLang: e.target.value })
+      chrome.storage.sync.set({ srcLang: e.target.value }).catch((err) => console.error('Failed to save source language', err))
     }
   }
   const handleTgtLang = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setTgtLang(e.target.value)
     if (chrome.storage) {
-      chrome.storage.sync.set({ tgtLang: e.target.value })
+      chrome.storage.sync.set({ tgtLang: e.target.value }).catch((err) => console.error('Failed to save target language', err))
     }
   }
 
-  // Persist every change
+  // Persist every change (debounced — see persistPitch/persistRate/persistVolume above)
   const handlePitchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = parseFloat(e.target.value)
     setPitch(val)
-    if (chrome.storage) {
-      chrome.storage.sync.set({ pitch: val })
-    }
+    persistPitch(val)
   }
   const handleRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = parseFloat(e.target.value)
     setRate(val)
-    if (chrome.storage) {
-      chrome.storage.sync.set({ rate: val })
-    }
+    persistRate(val)
   }
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = parseFloat(e.target.value)
     setVolume(val)
-    if (chrome.storage) {
-      chrome.storage.sync.set({ volume: val })
-    }
+    persistVolume(val)
   }
 
   return (

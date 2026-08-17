@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && vite build --config vite.background.config.ts && vite build --config vite.pageToast.config.ts",
     "lint": "eslint .",
     "preview": "vite preview",
     "release": "release-it"
@@ -16,8 +16,6 @@
     "@tailwindcss/vite": "^4.1.17",
     "chrome-types": "^0.1.394",
     "motion": "^12.23.25",
-    "motion-plus": "https://api.motion.dev/registry.tgz?package=motion-plus&version=2.12.0",
-    "radix-ui": "^1.4.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "tailwindcss": "^4.1.17"

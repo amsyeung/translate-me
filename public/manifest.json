@@ -19,13 +19,7 @@
       "js": ["pageToast.js"]
     }
   ],
-  "web_accessible_resources": [
-    {
-      "resources": ["bcp47.json"],
-      "matches":   ["<all_urls>"]
-    }
-  ],
-  "permissions": ["storage", "contextMenus", "tabs"],
+  "permissions": ["storage", "contextMenus", "activeTab"],
   "options_ui": {
     "page": "options.html",
     "open_in_tab": false
