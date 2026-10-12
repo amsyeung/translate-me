@@ -4,6 +4,12 @@ See the GitHub Releases page for detailed changelogs: https://github.com/amsyeun
 
 
 
+## [1.1.3](https://github.com/amsyeung/translate-me/compare/v1.1.2...v1.1.3) (2026-10-12)
+
+### Bug Fixes
+
+* **popup:** clear Hide/Show buttons and always start collapsed ([e73a172](https://github.com/amsyeung/translate-me/commit/e73a17262c8f790d3d5d540c4179af5f63940810))
+
 ## [1.1.2](https://github.com/amsyeung/translate-me/compare/v1.1.1...v1.1.2) (2026-10-12)
 
 ### Bug Fixes
