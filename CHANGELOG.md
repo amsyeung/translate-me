@@ -4,6 +4,12 @@ See the GitHub Releases page for detailed changelogs: https://github.com/amsyeun
 
 
 
+## [1.1.2](https://github.com/amsyeung/translate-me/compare/v1.1.1...v1.1.2) (2026-10-12)
+
+### Bug Fixes
+
+* **voice:** support ElevenLabs keys without the voices_read permission ([7bb613c](https://github.com/amsyeung/translate-me/commit/7bb613cd6092b5e8215532c21ee26b37dd479a3d))
+
 ## [1.1.1](https://github.com/amsyeung/translate-me/compare/v1.1.0...v1.1.1) (2026-10-12)
 
 ### Bug Fixes
