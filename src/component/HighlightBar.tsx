@@ -24,21 +24,14 @@ const Kbd = ({ children }: { children: string }) => (
 
 const lowerFirst = (s: string) => s.charAt(0).toLowerCase() + s.slice(1)
 
-// Whether the panel is expanded is a per-browser convenience, so localStorage is enough.
-const EXPANDED_KEY = 'highlightBarExpanded'
-function readExpanded(): boolean {
-  try {
-    return localStorage.getItem(EXPANDED_KEY) === '1'
-  } catch {
-    return false
-  }
-}
-
-/** Quick controls for highlight-to-translate, so nobody has to dig into Options. Collapsed to one line by default. */
+/**
+ * Quick controls for highlight-to-translate, so nobody has to dig into Options.
+ * Always starts collapsed to one line: these settings change rarely, and the popup is for translating.
+ */
 export default function HighlightBar({ settings, update }: { settings: Settings; update: (patch: Partial<Settings>) => void }) {
   const host = useActiveHostname()
   const shortcuts = useShortcuts()
-  const [expanded, setExpanded] = useState(readExpanded)
+  const [expanded, setExpanded] = useState(false)
   const siteOff = Boolean(host) && settings.disabledSites.includes(host)
   const off = !settings.highlightEnabled
 
@@ -47,16 +40,6 @@ export default function HighlightBar({ settings, update }: { settings: Settings;
     update({ disabledSites })
   }
 
-  const toggleExpanded = () => {
-    setExpanded((v) => {
-      try {
-        localStorage.setItem(EXPANDED_KEY, v ? '0' : '1')
-      } catch {
-        /* storage unavailable: just don't remember */
-      }
-      return !v
-    })
-  }
 
   const status = off ? 'Off' : siteOff ? `Off on ${host}` : `On · ${lowerFirst(TRIGGER_MODES.find((m) => m.id === settings.triggerMode)?.label ?? '')}`
 
@@ -64,7 +47,7 @@ export default function HighlightBar({ settings, update }: { settings: Settings;
     return (
       <button
         type="button"
-        onClick={toggleExpanded}
+        onClick={() => setExpanded(true)}
         aria-expanded="false"
         title="Show highlight-to-translate settings"
         className="flex items-center gap-1.5 w-full px-3 py-1.5 text-xs text-left text-zinc-500 bg-zinc-50 rounded-lg hover:bg-zinc-100 cursor-pointer"
@@ -72,8 +55,8 @@ export default function HighlightBar({ settings, update }: { settings: Settings;
         <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${off || siteOff ? 'bg-zinc-300' : 'bg-emerald-500'}`} aria-hidden="true" />
         <span className="font-semibold text-zinc-700">Translate on select</span>
         <span className="truncate">{status}</span>
-        <span className="ml-auto text-zinc-400" aria-hidden="true">
-          ▸
+        <span className="ml-auto shrink-0 text-zinc-500">
+          Show <span aria-hidden="true">▾</span>
         </span>
       </button>
     )
@@ -81,19 +64,20 @@ export default function HighlightBar({ settings, update }: { settings: Settings;
 
   return (
     <div className="flex flex-col gap-1.5 px-3 py-2 text-xs text-zinc-600 bg-zinc-50 rounded-lg">
-      <button
-        type="button"
-        onClick={toggleExpanded}
-        aria-expanded="true"
-        title="Collapse"
-        className="self-end -mb-5 text-zinc-400 hover:text-zinc-700 cursor-pointer"
-      >
-        ▾
-      </button>
-      <label className="inline-flex items-center gap-1.5 cursor-pointer" title="Show a translation next to text you select on web pages">
-        <input type="checkbox" checked={settings.highlightEnabled} onChange={(e) => update({ highlightEnabled: e.target.checked })} />
-        <span className="font-semibold text-zinc-800">Translate text I select on web pages</span>
-      </label>
+      <div className="flex items-center justify-between gap-2">
+        <label className="inline-flex items-center gap-1.5 cursor-pointer" title="Show a translation next to text you select on web pages">
+          <input type="checkbox" checked={settings.highlightEnabled} onChange={(e) => update({ highlightEnabled: e.target.checked })} />
+          <span className="font-semibold text-zinc-800">Translate text I select on web pages</span>
+        </label>
+        <button
+          type="button"
+          onClick={() => setExpanded(false)}
+          aria-expanded="true"
+          className="shrink-0 -my-1 -mr-1.5 inline-flex items-center gap-1 rounded-md px-2 py-1 text-zinc-500 hover:bg-zinc-200 hover:text-zinc-800 cursor-pointer"
+        >
+          Hide <span aria-hidden="true">▴</span>
+        </button>
+      </div>
 
       <label className={`inline-flex items-center gap-1.5 pl-5 ${off ? 'opacity-40' : ''}`}>
         <span>Show it</span>
