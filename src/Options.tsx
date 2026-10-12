@@ -1,15 +1,10 @@
 import { SORTED_LANGUAGES } from './core/languages'
-import { setTargetLanguage, type TriggerMode } from './core/settings'
+import { setTargetLanguage, TRIGGER_MODES } from './core/settings'
 import { useSettings } from './hooks/useSettings'
+import { useShortcuts } from './hooks/useShortcuts'
 import HistorySection from './options/HistorySection'
 import VoiceSection from './options/VoiceSection'
 import { Row, Section, buttonClass, inputClass } from './options/ui'
-
-const TRIGGER_MODES: { id: TriggerMode; label: string; hint: string }[] = [
-  { id: 'auto', label: 'Show instantly', hint: 'The translation appears as soon as you select text.' },
-  { id: 'icon', label: 'Show a button first', hint: 'A small button appears; click it to translate. Least intrusive.' },
-  { id: 'modifier', label: 'Only while holding Alt (⌥ Option on Mac)', hint: 'Select text with Alt held down.' },
-]
 
 const AUTO_HIDE = [
   { value: 0, label: 'Never — close with Esc or a click elsewhere' },
@@ -28,7 +23,11 @@ function LanguageOptions() {
 
 export default function Options() {
   const { settings, loaded, update } = useSettings()
+  const shortcuts = useShortcuts()
   if (!loaded) return null
+
+  const shortcut = (name: string) =>
+    shortcuts[name] ? <kbd className="rounded border border-zinc-300 bg-white px-1.5 text-xs">{shortcuts[name]}</kbd> : <span className="text-zinc-400">not set</span>
 
   return (
     <main className="mx-auto flex max-w-3xl flex-col gap-5 px-5 py-8">
@@ -60,9 +59,9 @@ export default function Options() {
       <Section title="Highlight to translate" description="Select text on any page to see its translation next to it.">
         <label className="flex items-center gap-2 text-sm cursor-pointer">
           <input type="checkbox" checked={settings.highlightEnabled} onChange={(e) => update({ highlightEnabled: e.target.checked })} />
-          Enabled
+          Translate text I select on web pages
         </label>
-        <Row label="When to show">
+        <Row label="Show the translation">
           <div className="flex flex-col gap-2">
             {TRIGGER_MODES.map((m) => (
               <label key={m.id} className="flex items-start gap-2 cursor-pointer">
@@ -90,8 +89,8 @@ export default function Options() {
             Ignore selections inside text boxes and editors
           </label>
         </Row>
-        <Row label="Turned off on" hint="Add sites from the toolbar popup">
-          {settings.disabledSites.length === 0 && <span className="text-zinc-400">No sites</span>}
+        <Row label="Sites where it's off" hint="Untick “Also on this site” in the toolbar popup to add one; × turns it back on">
+          {settings.disabledSites.length === 0 && <span className="text-zinc-400">None — it works on every site</span>}
           {settings.disabledSites.map((host) => (
             <span key={host} className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2 py-0.5 text-xs">
               {host}
@@ -106,7 +105,9 @@ export default function Options() {
             </span>
           ))}
         </Row>
-        <Row label="Keyboard shortcuts" hint="Toggle highlight-to-translate, or translate the current selection">
+        <Row label="Keyboard shortcuts" hint="Work on any web page">
+          <span className="w-full">{shortcut('translate-selection')} translate the selected text</span>
+          <span className="w-full">{shortcut('toggle-highlight')} turn “translate text I select” on or off</span>
           <button type="button" className={buttonClass} onClick={() => chrome.tabs.create({ url: 'chrome://extensions/shortcuts' })}>
             Configure shortcuts…
           </button>

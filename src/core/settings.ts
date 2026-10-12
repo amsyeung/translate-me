@@ -136,3 +136,10 @@ export async function setTargetLanguage(lang: string): Promise<void> {
 export function isSiteDisabled(settings: Pick<Settings, 'disabledSites'>, hostname: string): boolean {
   return Boolean(hostname) && settings.disabledSites.includes(hostname)
 }
+
+/** Labels for the trigger modes, shared by the popup and the options page. */
+export const TRIGGER_MODES: { id: TriggerMode; label: string; hint: string }[] = [
+  { id: 'auto', label: 'As soon as I select text', hint: 'The translation appears right after you select text.' },
+  { id: 'icon', label: 'After I click a translate button', hint: 'A small button appears next to the selection; click it to translate. Least intrusive.' },
+  { id: 'modifier', label: 'Only when I hold Alt (⌥) while selecting', hint: 'Hold Alt (Option on Mac) while you select. Selecting normally does nothing.' },
+]
