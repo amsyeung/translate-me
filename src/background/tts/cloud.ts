@@ -178,7 +178,17 @@ export async function synthesizeEleven(text: string, lang: string, settings: Set
   if (text.length > settings.elevenMaxChars) throw new CloudTtsError(`ElevenLabs: text longer than ${settings.elevenMaxChars} characters`)
 
   let voiceId = settings.elevenVoiceId
-  if (!voiceId) voiceId = (await listElevenVoices())[0]?.id ?? ''
+  if (!voiceId) {
+    try {
+      voiceId = (await listElevenVoices())[0]?.id ?? ''
+    } catch (err) {
+      // Restricted keys may speak but not list voices; they need a voice chosen explicitly.
+      if (String((err as Error)?.message).includes('voices_read')) {
+        throw new CloudTtsError('ElevenLabs: paste a voice ID in Settings → Voice (this key can’t list voices)')
+      }
+      throw err
+    }
+  }
   if (!voiceId) throw new CloudTtsError('ElevenLabs: no voice available on this account')
 
   const speed = Math.min(1.2, Math.max(0.7, settings.rate))
