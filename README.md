@@ -76,6 +76,8 @@ pnpm build   # outputs the unpacked extension to dist/
 
 Load `dist/` via `chrome://extensions` → *Developer mode* → *Load unpacked*.
 
+Releases are automatic on merge to `main` (version bump, changelog, GitHub release, Chrome Web Store submission). See [docs/PUBLISHING.md](docs/PUBLISHING.md) for the one-time store setup.
+
 ## 📬 Support & Feedback
 
 Got questions or want a new feature?
