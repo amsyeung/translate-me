@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "translate me",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Free in-page translator powered by Chrome's built-in AI",
   "minimum_chrome_version": "138",
   "action": {
@@ -13,26 +13,48 @@
     "48": "extension_icon48.png",
     "128": "extension_icon128.png"
   },
-  "background": { "service_worker": "background.js" },
+  "background": {
+    "service_worker": "background.js"
+  },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"],
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
       "all_frames": true
     }
   ],
   "side_panel": {
     "default_path": "sidepanel.html"
   },
-  "permissions": ["storage", "contextMenus", "activeTab", "tts", "offscreen", "sidePanel"],
-  "optional_host_permissions": ["https://*.tts.speech.microsoft.com/*", "https://api.elevenlabs.io/*"],
+  "permissions": [
+    "storage",
+    "contextMenus",
+    "activeTab",
+    "tts",
+    "offscreen",
+    "sidePanel"
+  ],
+  "optional_host_permissions": [
+    "https://*.tts.speech.microsoft.com/*",
+    "https://api.elevenlabs.io/*"
+  ],
   "commands": {
     "translate-selection": {
-      "suggested_key": { "default": "Alt+Shift+T", "mac": "Alt+Shift+T" },
+      "suggested_key": {
+        "default": "Alt+Shift+T",
+        "mac": "Alt+Shift+T"
+      },
       "description": "Translate the selected text"
     },
     "toggle-highlight": {
-      "suggested_key": { "default": "Alt+Shift+H", "mac": "Alt+Shift+H" },
+      "suggested_key": {
+        "default": "Alt+Shift+H",
+        "mac": "Alt+Shift+H"
+      },
       "description": "Turn highlight-to-translate on or off"
     }
   },
