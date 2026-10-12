@@ -1,146 +1,128 @@
-import { useEffect, useRef, useState } from 'react'
-import Divider from './component/Divider'
-import bcp47 from './util/bcp47.json'
-import { debounce } from './util/util'
-import { DEFAULT_TARGET_LANG } from './constants'
-import type { ExtensionStorage } from './types/storage'
+import { SORTED_LANGUAGES } from './core/languages'
+import { setTargetLanguage, type TriggerMode } from './core/settings'
+import { useSettings } from './hooks/useSettings'
+import HistorySection from './options/HistorySection'
+import VoiceSection from './options/VoiceSection'
+import { Row, Section, buttonClass, inputClass } from './options/ui'
+
+const TRIGGER_MODES: { id: TriggerMode; label: string; hint: string }[] = [
+  { id: 'auto', label: 'Show instantly', hint: 'The translation appears as soon as you select text.' },
+  { id: 'icon', label: 'Show a button first', hint: 'A small button appears; click it to translate. Least intrusive.' },
+  { id: 'modifier', label: 'Only while holding Alt (⌥ Option on Mac)', hint: 'Select text with Alt held down.' },
+]
+
+const AUTO_HIDE = [
+  { value: 0, label: 'Never — close with Esc or a click elsewhere' },
+  { value: 5, label: 'After 5 seconds' },
+  { value: 10, label: 'After 10 seconds' },
+  { value: 20, label: 'After 20 seconds' },
+]
+
+function LanguageOptions() {
+  return SORTED_LANGUAGES.map((l) => (
+    <option key={l.tag} value={l.tag}>
+      {l.lang}
+    </option>
+  ))
+}
 
 export default function Options() {
-  const [srcLang, setSrcLang] = useState('')
-  const [tgtLang, setTgtLang] = useState(DEFAULT_TARGET_LANG)
-  const [pitch, setPitch] = useState(1.2)
-  const [rate, setRate] = useState(0.9)
-  const [volume, setVolume] = useState(1)
-
-  // Load current value on mount
-  useEffect(() => {
-    if (chrome.storage) {
-      chrome.storage.sync.get({ srcLang: '' }, (data: Pick<ExtensionStorage, 'srcLang'>) => setSrcLang(data.srcLang))
-      chrome.storage.sync.get({ tgtLang: DEFAULT_TARGET_LANG }, (data: Pick<ExtensionStorage, 'tgtLang'>) => setTgtLang(data.tgtLang))
-      chrome.storage.sync.get({ pitch: 1.2 }, (data: Pick<ExtensionStorage, 'pitch'>) => setPitch(data.pitch))
-      chrome.storage.sync.get({ rate: 0.9 }, (data: Pick<ExtensionStorage, 'rate'>) => setRate(data.rate))
-      chrome.storage.sync.get({ volume: 1 }, (data: Pick<ExtensionStorage, 'volume'>) => setVolume(data.volume))
-    }
-  }, [])
-
-  // Slider onChange fires many times per second while dragging; debounce the
-  // chrome.storage.sync writes so we don't blow past its write-rate quota.
-  const persistPitch = useRef(
-    debounce((val: number) => {
-      if (chrome.storage) chrome.storage.sync.set({ pitch: val }).catch((err) => console.error('Failed to save pitch', err))
-    }, 200)
-  ).current
-  const persistRate = useRef(
-    debounce((val: number) => {
-      if (chrome.storage) chrome.storage.sync.set({ rate: val }).catch((err) => console.error('Failed to save rate', err))
-    }, 200)
-  ).current
-  const persistVolume = useRef(
-    debounce((val: number) => {
-      if (chrome.storage) chrome.storage.sync.set({ volume: val }).catch((err) => console.error('Failed to save volume', err))
-    }, 200)
-  ).current
-
-  const handleSrcLang = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSrcLang(e.target.value)
-    if (chrome.storage) {
-      chrome.storage.sync.set({ srcLang: e.target.value }).catch((err) => console.error('Failed to save source language', err))
-    }
-  }
-  const handleTgtLang = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setTgtLang(e.target.value)
-    if (chrome.storage) {
-      chrome.storage.sync.set({ tgtLang: e.target.value }).catch((err) => console.error('Failed to save target language', err))
-    }
-  }
-
-  // Persist every change (debounced — see persistPitch/persistRate/persistVolume above)
-  const handlePitchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = parseFloat(e.target.value)
-    setPitch(val)
-    persistPitch(val)
-  }
-  const handleRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = parseFloat(e.target.value)
-    setRate(val)
-    persistRate(val)
-  }
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = parseFloat(e.target.value)
-    setVolume(val)
-    persistVolume(val)
-  }
+  const { settings, loaded, update } = useSettings()
+  if (!loaded) return null
 
   return (
-    <div className="flex flex-col gap-2 w-[400px] px-5 py-3">
-      <div className="grid grid-cols-2 gap-1 py-1.5">
-        <label htmlFor="srcLang">Source Language</label>
-        <select onChange={handleSrcLang} value={srcLang} className="outline-none" id="srcLang">
-          <option value="">Detect Language (recommend)</option>
-          {bcp47
-            .slice()
-            .sort((a, b) => a.lang.localeCompare(b.lang))
-            .map((b) => (
-              <option key={b.tag} value={b.tag} className="text-zinc-900">
-                {b.lang}
+    <main className="mx-auto flex max-w-3xl flex-col gap-5 px-5 py-8">
+      <header>
+        <h1 className="text-2xl! font-semibold text-zinc-900">translate me — Settings</h1>
+        <p className="text-sm text-zinc-500">Translation runs on your device with Chrome&apos;s built-in model. Nothing you translate is sent anywhere.</p>
+      </header>
+
+      <Section title="Languages">
+        <Row label="Translate into" htmlFor="tgtLang">
+          <select id="tgtLang" className={inputClass} value={settings.tgtLang} onChange={(e) => setTargetLanguage(e.target.value)}>
+            <LanguageOptions />
+          </select>
+        </Row>
+        <Row label="Source language" htmlFor="srcLang" hint="Auto-detect is recommended">
+          <select id="srcLang" className={inputClass} value={settings.srcLang} onChange={(e) => update({ srcLang: e.target.value })}>
+            <option value="">Detect automatically</option>
+            <LanguageOptions />
+          </select>
+        </Row>
+        <Row label="Bilingual pair" htmlFor="pairLang" hint="When the text is already in your target language, translate it into this one instead">
+          <select id="pairLang" className={inputClass} value={settings.pairLang} onChange={(e) => update({ pairLang: e.target.value })}>
+            <option value="">Off</option>
+            <LanguageOptions />
+          </select>
+        </Row>
+      </Section>
+
+      <Section title="Highlight to translate" description="Select text on any page to see its translation next to it.">
+        <label className="flex items-center gap-2 text-sm cursor-pointer">
+          <input type="checkbox" checked={settings.highlightEnabled} onChange={(e) => update({ highlightEnabled: e.target.checked })} />
+          Enabled
+        </label>
+        <Row label="When to show">
+          <div className="flex flex-col gap-2">
+            {TRIGGER_MODES.map((m) => (
+              <label key={m.id} className="flex items-start gap-2 cursor-pointer">
+                <input type="radio" name="trigger" className="mt-1" checked={settings.triggerMode === m.id} onChange={() => update({ triggerMode: m.id })} />
+                <span>
+                  {m.label}
+                  <span className="block text-xs text-zinc-400">{m.hint}</span>
+                </span>
+              </label>
+            ))}
+          </div>
+        </Row>
+        <Row label="Hide the popover" htmlFor="autoHide" hint="Hovering or pinning always keeps it open">
+          <select id="autoHide" className={inputClass} value={settings.autoHideSeconds} onChange={(e) => update({ autoHideSeconds: Number(e.target.value) })}>
+            {AUTO_HIDE.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
               </option>
             ))}
-        </select>
-      </div>
-      <div className="grid grid-cols-2 gap-1 py-1.5">
-        <label htmlFor="tgtLang">Target Language</label>
-        <select onChange={handleTgtLang} value={tgtLang} className="outline-none" id="tgtLang">
-          {bcp47
-            .slice()
-            .sort((a, b) => a.lang.localeCompare(b.lang))
-            .map((b) => (
-              <option key={b.tag} value={b.tag} className="text-zinc-900">
-                {b.lang}
-              </option>
-            ))}
-        </select>
-      </div>
-      <div className="grid grid-cols-2 gap-1 py-1.5">
-        <label className="mr-5" htmlFor="pitch">
-          Pitch
-        </label>
-        <div className="flex items-center gap-1">
-          <input id="pitch" type="range" min={0.5} max={2} step={0.05} value={pitch} onChange={handlePitchChange} className="w-[200px] mt-1" />
-          {pitch.toFixed(2)}
-        </div>
-      </div>
-      <div className="grid grid-cols-2 gap-1 py-1.5">
-        <label className="mr-5" htmlFor="pitch">
-          Rate
-        </label>
-        <div className="flex items-center gap-1">
-          <input type="range" min={0.5} max={2} step={0.05} value={rate} onChange={handleRateChange} className="w-[200px] mt-1" />
-          {rate.toFixed(2)}
-        </div>
-      </div>
-      <div className="grid grid-cols-2 gap-1 py-1.5">
-        <label className="mr-5" htmlFor="pitch">
-          Volume
-        </label>
-        <div className="flex items-center gap-1">
-          <input type="range" min={0.5} max={1} step={0.05} value={volume} onChange={handleVolumeChange} className="w-[200px] mt-1" />
-          {volume.toFixed(2)}
-        </div>
-      </div>
+          </select>
+        </Row>
+        <Row label="Text fields">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" checked={settings.skipEditable} onChange={(e) => update({ skipEditable: e.target.checked })} />
+            Ignore selections inside text boxes and editors
+          </label>
+        </Row>
+        <Row label="Turned off on" hint="Add sites from the toolbar popup">
+          {settings.disabledSites.length === 0 && <span className="text-zinc-400">No sites</span>}
+          {settings.disabledSites.map((host) => (
+            <span key={host} className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2 py-0.5 text-xs">
+              {host}
+              <button
+                type="button"
+                aria-label={`Turn back on for ${host}`}
+                className="text-zinc-400 hover:text-zinc-800 cursor-pointer"
+                onClick={() => update({ disabledSites: settings.disabledSites.filter((h) => h !== host) })}
+              >
+                ×
+              </button>
+            </span>
+          ))}
+        </Row>
+        <Row label="Keyboard shortcuts" hint="Toggle highlight-to-translate, or translate the current selection">
+          <button type="button" className={buttonClass} onClick={() => chrome.tabs.create({ url: 'chrome://extensions/shortcuts' })}>
+            Configure shortcuts…
+          </button>
+        </Row>
+      </Section>
 
-      <Divider />
+      <VoiceSection settings={settings} update={update} />
 
-      <div className="flex flex-col text-justify text-zinc-500 gap-1 mr-2 mt-2">
-        <p>If you find this Chrome extension useful, consider showing your appreciation by buying the author a coffee!</p>
-        <div className="flex items-center justify-left my-2">
-          <a className="underline mr-1" href="https://buymeacoffee.com/amsy" target="_blank" rel="noopener noreferrer">
-            <span className="text-semibold text-zinc-800">Buy me a coffee</span>
-          </a>
-          <img width={15} height={15} src={'/donation.png'} alt="Donation Icon" />
-        </div>
+      <HistorySection enabled={settings.saveHistory} onToggle={(saveHistory) => update({ saveHistory })} />
 
-        <p>Your contribution helps keep the project maintained, updated, and free for everyone. Thank you!</p>
-      </div>
-    </div>
+      <footer className="flex flex-col gap-1 text-sm text-zinc-500 pb-6">
+        <p>If you find this extension useful, consider buying the author a coffee — it keeps the project maintained and free for everyone. Thank you!</p>
+        <a className="inline-flex items-center gap-1 underline text-zinc-800 w-fit" href="https://buymeacoffee.com/amsy" target="_blank" rel="noopener noreferrer">
+          Buy me a coffee <img width={15} height={15} src="/donation.png" alt="" />
+        </a>
+      </footer>
+    </main>
   )
 }
