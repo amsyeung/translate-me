@@ -6,7 +6,7 @@ import type { HistoryItem } from './history'
 export type BackgroundRequest =
   | { type: 'speak'; text: string; lang: string }
   | { type: 'stop-speaking' }
-  | { type: 'list-cloud-voices'; provider: 'azure' | 'elevenlabs' }
+  | { type: 'list-cloud-voices'; provider: 'azure' | 'elevenlabs' | 'shared'; lang?: string }
   | { type: 'open-options' }
   | { type: 'add-history'; item: HistoryItem }
 

@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "release": "release-it",
-    "test": "vitest run"
+    "test": "vitest run && node --test \"server/tts-proxy/test/*.mjs\""
   },
   "dependencies": {
     "@headlessui/react": "^2.2.9",

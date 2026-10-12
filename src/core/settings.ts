@@ -1,7 +1,7 @@
 import { DEFAULT_TARGET_LANG } from '../constants'
 
 export type TriggerMode = 'auto' | 'icon' | 'modifier'
-export type TtsProvider = 'browser' | 'azure' | 'elevenlabs'
+export type TtsProvider = 'browser' | 'shared' | 'azure' | 'elevenlabs'
 
 /** User preferences, kept in chrome.storage.sync so they follow the user across devices. */
 export interface Settings {
@@ -39,6 +39,8 @@ export interface Settings {
   azureRegion: string
   /** Language tag → preferred Azure voice short name. */
   azureVoicePrefs: Record<string, string>
+  /** Language tag → preferred voice on the shared translate me voice server. */
+  sharedVoicePrefs: Record<string, string>
   elevenVoiceId: string
   elevenModel: string
   /** Hard cap on ElevenLabs characters per calendar month (protects the user's credits). */
@@ -67,6 +69,7 @@ export const DEFAULT_SETTINGS: Settings = {
   voicePrefs: {},
   azureRegion: 'eastasia',
   azureVoicePrefs: {},
+  sharedVoicePrefs: {},
   elevenVoiceId: '',
   elevenModel: 'eleven_flash_v2_5',
   elevenMonthlyBudget: 10000,

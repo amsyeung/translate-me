@@ -3,6 +3,7 @@ import { loadSettings } from '../../core/settings'
 import { speakWithBrowser, stopBrowserVoice } from './browserVoice'
 import { CloudTtsError, synthesizeAzure, synthesizeEleven, type Audio } from './cloud'
 import { playAudio, stopAudio } from './offscreen'
+import { synthesizeShared } from './shared'
 
 // Bumped by every speak/stop so a slow cloud request can't start playing after it was superseded.
 let generation = 0
@@ -30,7 +31,8 @@ export async function speak(text: string, lang: string): Promise<SpeakResponse> 
   if (settings.ttsProvider !== 'browser') {
     try {
       let audio: Audio
-      if (settings.ttsProvider === 'azure') audio = await synthesizeAzure(text, lang, settings)
+      if (settings.ttsProvider === 'shared') audio = await synthesizeShared(text, lang, settings)
+      else if (settings.ttsProvider === 'azure') audio = await synthesizeAzure(text, lang, settings)
       else audio = await synthesizeEleven(text, lang, settings)
       if (stale()) return { ok: true, provider: settings.ttsProvider }
       await playAudio(audio, settings.volume)

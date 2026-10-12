@@ -64,7 +64,7 @@ The **Translate on select** line shows whether highlight-to-translate is on. Cli
 
 Every 🔊 button picks the best voice installed on your computer for that language and region. For example, a Hong Kong user hears Cantonese for Traditional Chinese, and a Taiwan user hears Mandarin. You can choose a different voice per language in Settings.
 
-For more natural voices, add your own **Azure Speech** key (the free tier is plenty for personal use, and includes Cantonese) or **ElevenLabs** key. ElevenLabs gets a monthly character budget so it can't use up your credits. Audio is cached locally, so replaying is free.
+For more natural voices, switch to **translate me natural voices** in *Settings → Voice*. These are free Microsoft neural voices (including Cantonese), served by the project's own voice server under a shared daily limit; when the limit is reached, the browser voice is used instead. You can also bring your own **Azure Speech** or **ElevenLabs** key. ElevenLabs gets a monthly character budget so it can't use up your credits. Audio is cached locally, so replaying is free.
 
 ### History
 
@@ -119,7 +119,8 @@ This is the list Chrome's built-in translator supports.
 - **On-device translation.** Text is translated, and its language detected, by Chrome's built-in models on your computer. It isn't sent anywhere.
 - **No personal data.** No analytics, and no IP addresses, browsing history or identifiers are collected.
 - **Your data stays local.** Settings sync through your Chrome profile. Translation history and API keys stay on this device and are removed with the extension.
-- **Optional cloud voices.** Only if you add your own Azure or ElevenLabs key: the text you choose to listen to is sent to that provider to generate the audio. The extension asks for network access to the provider only when you connect it.
+- **Optional natural voices.** Only if you turn on *translate me natural voices*: the text you choose to listen to is sent to the translate me voice server and Microsoft Azure to make the audio. The server keeps the audio in a cache, but never logs the text or your IP address ([how it works](server/tts-proxy/README.md)).
+- **Optional cloud voices with your own key.** Only if you add your own Azure or ElevenLabs key: the text you choose to listen to is sent to that provider to make the audio. The extension asks for network access to the provider only when you connect it.
 - **Open page in Google Translate.** This menu item sends the page's address to Google, the same as visiting Google Translate yourself.
 
 Full policy: [translateme-privacy.netlify.app](https://translateme-privacy.netlify.app/)
@@ -128,7 +129,7 @@ Full policy: [translateme-privacy.netlify.app](https://translateme-privacy.netli
 
 ```bash
 pnpm install
-pnpm test     # unit tests (vitest)
+pnpm test     # extension unit tests (vitest) + voice server tests (node --test)
 pnpm build    # builds the unpacked extension into dist/
 ```
 
@@ -141,6 +142,7 @@ Load `dist/` at `chrome://extensions` → *Developer mode* → *Load unpacked*. 
 | `src/background/` | Service worker: context menus, shortcuts, and speech (browser, Azure, ElevenLabs) |
 | `src/component/`, `src/options/` | Popup / side panel and settings page (React) |
 | `tests/` | Unit tests |
+| `server/tts-proxy/` | The shared voice server ([deploy guide](server/tts-proxy/README.md)) |
 
 Merging to `main` releases automatically: version bump, changelog, GitHub release, and Chrome Web Store submission. See [docs/PUBLISHING.md](docs/PUBLISHING.md) for the one-time store setup.
 

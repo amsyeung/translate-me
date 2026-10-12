@@ -32,6 +32,11 @@ interface CloudVoice {
 
 const PROVIDERS: { id: TtsProvider; label: string; hint: string }[] = [
   { id: 'browser', label: 'Browser voices', hint: 'Free, offline. Quality depends on the voices installed on Windows / macOS.' },
+  {
+    id: 'shared',
+    label: 'translate me natural voices (free)',
+    hint: 'Microsoft neural voices, including Cantonese, from the translate me voice server. The text you listen to is sent to that server and Microsoft Azure to make the audio. Shared daily limit; falls back to browser voices.',
+  },
   { id: 'azure', label: 'Azure Speech (your key)', hint: 'Natural neural voices incl. Cantonese. Free tier is ample for personal use.' },
   { id: 'elevenlabs', label: 'ElevenLabs (your key)', hint: 'Most natural, uses your credits — guarded by a monthly budget.' },
 ]
@@ -87,7 +92,9 @@ export default function VoiceSection({ settings, update }: { settings: Settings;
   }, [])
 
   const provider = settings.ttsProvider
-  const cloud = provider === 'browser' ? null : provider
+  // Providers that use the user's own key and an optional host permission.
+  const cloud = provider === 'azure' || provider === 'elevenlabs' ? provider : null
+  const [sharedVoices, setSharedVoices] = useState<CloudVoice[]>([])
 
   const loadCloudVoices = useCallback(async () => {
     if (!cloud) return
@@ -123,6 +130,20 @@ export default function VoiceSection({ settings, update }: { settings: Settings;
       if (ok) loadCloudVoices()
     })
   }, [cloud, settings.azureRegion, loadCloudVoices])
+
+  // The shared server lists voices per language, so reload when the language changes.
+  useEffect(() => {
+    if (provider !== 'shared') return
+    let alive = true
+    sendToBackground<{ ok: boolean; voices?: CloudVoice[]; error?: string }>({ type: 'list-cloud-voices', provider: 'shared', lang }).then((res) => {
+      if (!alive) return
+      setSharedVoices(res.ok && res.voices ? res.voices : [])
+      if (!res.ok) setStatus(res.error ?? 'Could not reach the voice server.')
+    })
+    return () => {
+      alive = false
+    }
+  }, [provider, lang])
 
   const saveSecret = (patch: Partial<Secrets>) => {
     setSecrets((s) => ({ ...s, ...patch }))
@@ -247,6 +268,20 @@ export default function VoiceSection({ settings, update }: { settings: Settings;
             {ranked.map(({ voice }) => (
               <option key={voice.name} value={voice.name}>
                 {voice.name} — {voice.lang}
+              </option>
+            ))}
+          </select>
+        )}
+        {provider === 'shared' && (
+          <select
+            className={inputClass}
+            value={settings.sharedVoicePrefs[lang] ?? ''}
+            onChange={(e) => update({ sharedVoicePrefs: { ...settings.sharedVoicePrefs, [lang]: e.target.value } })}
+          >
+            <option value="">Automatic</option>
+            {sharedVoices.map((v) => (
+              <option key={v.id} value={v.id}>
+                {v.name}
               </option>
             ))}
           </select>
