@@ -25,6 +25,17 @@ async function ensurePermission(origin: string) {
   }
 }
 
+/** The provider's own explanation, e.g. ElevenLabs `{"detail":{"status":"quota_exceeded","message":"…"}}`. */
+async function providerMessage(res: Response): Promise<string | undefined> {
+  try {
+    const body = (await res.json()) as { detail?: { message?: string } | string; error?: { message?: string }; message?: string }
+    const msg = typeof body.detail === 'string' ? body.detail : (body.detail?.message ?? body.error?.message ?? body.message)
+    return msg ? String(msg).slice(0, 200) : undefined
+  } catch {
+    return undefined // Azure usually sends an empty body
+  }
+}
+
 async function fetchOk(url: string, init: RequestInit, label: string): Promise<Response> {
   let res: Response
   try {
@@ -32,10 +43,11 @@ async function fetchOk(url: string, init: RequestInit, label: string): Promise<R
   } catch {
     throw new CloudTtsError(`${label}: network error`)
   }
-  if (res.status === 401 || res.status === 403) throw new CloudTtsError(`${label}: the API key was rejected`)
-  if (res.status === 429) throw new CloudTtsError(`${label}: rate limit or quota reached`)
-  if (!res.ok) throw new CloudTtsError(`${label}: request failed (${res.status})`)
-  return res
+  if (res.ok) return res
+  const detail = await providerMessage(res)
+  if (res.status === 401 || res.status === 403) throw new CloudTtsError(`${label}: ${detail ?? 'the API key was rejected'}`)
+  if (res.status === 429) throw new CloudTtsError(`${label}: ${detail ?? 'rate limit or quota reached'}`)
+  throw new CloudTtsError(`${label}: ${detail ?? `request failed (${res.status})`}`)
 }
 
 // ------------------------------------------------------------------ Azure
