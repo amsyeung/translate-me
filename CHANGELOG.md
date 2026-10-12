@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file.
 See the GitHub Releases page for detailed changelogs: https://github.com/amsyeung/translate-me/releases
 
+
+
+## [1.1.1](https://github.com/amsyeung/translate-me/compare/v1.1.0...v1.1.1) (2026-10-12)
+
+### Bug Fixes
+
+* **voice:** API key fields enable Connect immediately and show provider errors ([1c67414](https://github.com/amsyeung/translate-me/commit/1c67414eb3e9a81c77523bc0d60cdb3dd9f25e32))
+
 ## [1.1.0](https://github.com/amsyeung/translate-me/compare/v1.0.2...v1.1.0) (2026-10-12)
 
 ### Features
