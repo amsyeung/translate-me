@@ -43,6 +43,25 @@ const ELEVEN_MODELS = [
   { id: 'eleven_v3', label: 'v3 — most expressive, full price' },
 ]
 
+/**
+ * API key field. Saves on every change rather than on blur: the Connect button next to it
+ * is disabled until a key exists, and a disabled button can't take the click that would
+ * otherwise blur (and save) the field.
+ */
+function KeyInput({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder: string }) {
+  return (
+    <input
+      type="password"
+      value={value}
+      placeholder={placeholder}
+      autoComplete="off"
+      spellCheck={false}
+      onChange={(e) => onChange(e.target.value.trim())}
+      className={`${inputClass} w-80`}
+    />
+  )
+}
+
 function useBrowserVoices() {
   const [voices, setVoices] = useState<{ name: string; lang: string; remote?: boolean }[]>([])
   useEffect(() => {
@@ -136,7 +155,7 @@ export default function VoiceSection({ settings, update }: { settings: Settings;
       {provider === 'azure' && (
         <>
           <Row label="Azure key" hint="Stored only on this device.">
-            <LazyInput type="password" value={secrets.azureKey} onCommit={(v) => saveSecret({ azureKey: v })} placeholder="Speech resource key" className="w-80" />
+            <KeyInput value={secrets.azureKey} onChange={(azureKey) => saveSecret({ azureKey })} placeholder="Speech resource key" />
           </Row>
           <Row label="Azure region" hint="e.g. eastasia, southeastasia, eastus">
             <LazyInput value={settings.azureRegion} onCommit={(v) => update({ azureRegion: v.toLowerCase() })} className="w-40" />
@@ -150,7 +169,7 @@ export default function VoiceSection({ settings, update }: { settings: Settings;
       {provider === 'elevenlabs' && (
         <>
           <Row label="ElevenLabs key" hint="Stored only on this device.">
-            <LazyInput type="password" value={secrets.elevenKey} onCommit={(v) => saveSecret({ elevenKey: v })} placeholder="xi-api-key" className="w-80" />
+            <KeyInput value={secrets.elevenKey} onChange={(elevenKey) => saveSecret({ elevenKey })} placeholder="xi-api-key" />
             <button type="button" className={buttonClass} onClick={connect} disabled={!secrets.elevenKey}>
               Connect &amp; load voices
             </button>
