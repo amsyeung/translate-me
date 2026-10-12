@@ -15,6 +15,8 @@ export default defineConfig({
       input: {
         main: 'index.html',
         options: 'options.html',
+        offscreen: 'offscreen.html',
+        sidepanel: 'sidepanel.html',
       },
       output: {
         entryFileNames: '[name].js',

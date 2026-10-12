@@ -3,6 +3,7 @@
   "name": "translate me",
   "version": "1.0.2",
   "description": "Free in-page translator powered by Chrome's built-in AI",
+  "minimum_chrome_version": "138",
   "action": {
     "default_popup": "index.html"
   },
@@ -16,12 +17,27 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["pageToast.js"]
+      "js": ["content.js"],
+      "all_frames": true
     }
   ],
-  "permissions": ["storage", "contextMenus", "activeTab"],
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "permissions": ["storage", "contextMenus", "activeTab", "tts", "offscreen", "sidePanel"],
+  "optional_host_permissions": ["https://*.tts.speech.microsoft.com/*", "https://api.elevenlabs.io/*"],
+  "commands": {
+    "translate-selection": {
+      "suggested_key": { "default": "Alt+Shift+T", "mac": "Alt+Shift+T" },
+      "description": "Translate the selected text"
+    },
+    "toggle-highlight": {
+      "suggested_key": { "default": "Alt+Shift+H", "mac": "Alt+Shift+H" },
+      "description": "Turn highlight-to-translate on or off"
+    }
+  },
   "options_ui": {
     "page": "options.html",
-    "open_in_tab": false
+    "open_in_tab": true
   }
 }

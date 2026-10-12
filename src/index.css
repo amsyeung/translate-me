@@ -18,7 +18,16 @@
 }
 
 body {
-  width: 260px;
   background: var(--foreground);
+}
+body.popup {
+  width: 400px;
   font-family: serif;
+}
+body.popup.side-panel {
+  width: auto;
+}
+body.options-page {
+  background: #fafafa;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
 }

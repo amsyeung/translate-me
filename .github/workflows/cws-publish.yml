@@ -1,0 +1,102 @@
+name: Chrome Web Store
+
+# Called by auto-release.yml after a version bump, or run by hand from the Actions tab:
+#   status  – only check that the Google credentials work (safe, changes nothing)
+#   upload  – upload the build as a draft, without submitting it for review
+#   publish – upload and submit for review
+# Setup: docs/PUBLISHING.md
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        type: string
+        required: true
+      mode:
+        type: string
+        default: publish
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Tag or branch to build (e.g. v1.1.0)
+        required: true
+        default: main
+      mode:
+        description: What to do
+        type: choice
+        options: [status, upload, publish]
+        default: status
+
+permissions:
+  contents: read
+  id-token: write # lets google-github-actions/auth exchange GitHub's OIDC token; no stored Google secret
+
+jobs:
+  chrome-web-store:
+    runs-on: ubuntu-latest
+    # Add yourself as a required reviewer on this environment (Settings → Environments)
+    # to approve every store submission by hand.
+    environment:
+      name: chrome-web-store
+      url: https://chromewebstore.google.com/detail/${{ vars.CWS_EXTENSION_ID }}
+    steps:
+      - name: Check configuration
+        env:
+          PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          ACCOUNT: ${{ vars.GCP_SERVICE_ACCOUNT }}
+          PUBLISHER: ${{ vars.CWS_PUBLISHER_ID }}
+          EXTENSION: ${{ vars.CWS_EXTENSION_ID }}
+        run: |
+          missing=""
+          [ -z "$PROVIDER" ] && missing="$missing GCP_WORKLOAD_IDENTITY_PROVIDER"
+          [ -z "$ACCOUNT" ] && missing="$missing GCP_SERVICE_ACCOUNT"
+          [ -z "$PUBLISHER" ] && missing="$missing CWS_PUBLISHER_ID"
+          [ -z "$EXTENSION" ] && missing="$missing CWS_EXTENSION_ID"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing repository variables:$missing (see docs/PUBLISHING.md)"
+            exit 1
+          fi
+
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Setup pnpm
+        if: inputs.mode != 'status'
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js v24 LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: ${{ inputs.mode != 'status' && 'pnpm' || '' }}
+
+      - name: Build and zip the extension
+        if: inputs.mode != 'status'
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm run build
+          cd dist && zip -qr ../translate-me.zip . && cd ..
+          echo "EXPECTED_VERSION=$(node -p "require('./dist/manifest.json').version")" >> "$GITHUB_ENV"
+
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/chromewebstore
+          access_token_lifetime: 900s
+          create_credentials_file: false
+
+      - name: ${{ inputs.mode }}
+        env:
+          CWS_ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
+          CWS_PUBLISHER_ID: ${{ vars.CWS_PUBLISHER_ID }}
+          CWS_EXTENSION_ID: ${{ vars.CWS_EXTENSION_ID }}
+          MODE: ${{ inputs.mode }}
+        run: node scripts/publish-cws.mjs "$MODE" translate-me.zip

@@ -1,59 +1,64 @@
 [
-  { "tag": "ar", "lang": "Arabic", "regions": ["ar-SA"], "descriptions": ["Arabic (Saudi Arabia)"] },
+  { "tag": "ar", "lang": "Arabic", "regions": ["ar-SA", "ar-EG", "ar-AE"], "descriptions": ["Arabic (Saudi Arabia)", "Arabic (Egypt)", "Arabic (UAE)"] },
+  { "tag": "bg", "lang": "Bulgarian", "regions": ["bg-BG"], "descriptions": ["Bulgarian (Bulgaria)"] },
   { "tag": "bn", "lang": "Bangla", "regions": ["bn-BD", "bn-IN"], "descriptions": ["Bangla (Bangladesh)", "Bangla (India)"] },
   { "tag": "cs", "lang": "Czech", "regions": ["cs-CZ"], "descriptions": ["Czech (Czech Republic)"] },
   { "tag": "da", "lang": "Danish", "regions": ["da-DK"], "descriptions": ["Danish (Denmark)"] },
   {
     "tag": "de",
     "lang": "German",
-    "regions": ["de-AT", "de-CH", "de-DE"],
-    "descriptions": ["Austrian German", "\"Swiss\" German", "Standard German (as spoken in Germany)"]
+    "regions": ["de-DE", "de-AT", "de-CH"],
+    "descriptions": ["Standard German (as spoken in Germany)", "Austrian German", "\"Swiss\" German"]
   },
   { "tag": "el", "lang": "Greek", "regions": ["el-GR"], "descriptions": ["Modern Greek"] },
   {
     "tag": "en",
     "lang": "English",
-    "regions": ["en-AU", "en-CA", "en-GB", "en-IE", "en-IN", "en-NZ", "en-US", "en-ZA"],
+    "regions": ["en-US", "en-GB", "en-AU", "en-CA", "en-IE", "en-IN", "en-NZ", "en-ZA"],
     "descriptions": [
+      "US English",
+      "British English",
       "Australian English",
       "Canadian English",
-      "British English",
       "Irish English",
       "Indian English",
       "New Zealand English",
-      "US English",
       "English (South Africa)"
     ]
   },
   {
     "tag": "es",
     "lang": "Spanish",
-    "regions": ["es-AR", "es-CL", "es-CO", "es-ES", "es-MX", "es-US"],
+    "regions": ["es-ES", "es-MX", "es-US", "es-AR", "es-CL", "es-CO"],
     "descriptions": [
-      "Argentine Spanish",
-      "Chilean Spanish",
-      "Colombian Spanish",
       "Castilian Spanish (as spoken in Central-Northern Spain)",
       "Mexican Spanish",
-      "American Spanish"
+      "American Spanish",
+      "Argentine Spanish",
+      "Chilean Spanish",
+      "Colombian Spanish"
     ]
   },
   { "tag": "fi", "lang": "Finnish", "regions": ["fi-FI"], "descriptions": ["Finnish (Finland)"] },
   {
     "tag": "fr",
     "lang": "French",
-    "regions": ["fr-BE", "fr-CA", "fr-CH", "fr-FR"],
-    "descriptions": ["Belgian French", "Canadian French", "\"Swiss\" French", "Standard French (especially in France)"]
+    "regions": ["fr-FR", "fr-CA", "fr-BE", "fr-CH"],
+    "descriptions": ["Standard French (especially in France)", "Canadian French", "Belgian French", "\"Swiss\" French"]
   },
-  { "tag": "he", "lang": "Hebrew", "regions": ["he-IL"], "descriptions": ["Hebrew (Israel)"] },
+  { "tag": "he", "lang": "Hebrew", "regions": ["he-IL", "iw-IL"], "descriptions": ["Hebrew (Israel)", "Hebrew (Israel, legacy code)"] },
   { "tag": "hi", "lang": "Hindi", "regions": ["hi-IN"], "descriptions": ["Hindi (India)"] },
+  { "tag": "hr", "lang": "Croatian", "regions": ["hr-HR"], "descriptions": ["Croatian (Croatia)"] },
   { "tag": "hu", "lang": "Hungarian", "regions": ["hu-HU"], "descriptions": ["Hungarian (Hungary)"] },
-  { "tag": "id", "lang": "Indonesian", "regions": ["id-ID"], "descriptions": ["Indonesian (Indonesia)"] },
-  { "tag": "it", "lang": "Italian", "regions": ["it-CH", "it-IT"], "descriptions": ["\"Swiss\" Italian", "Standard Italian (as spoken in Italy)"] },
+  { "tag": "id", "lang": "Indonesian", "regions": ["id-ID", "in-ID"], "descriptions": ["Indonesian (Indonesia)", "Indonesian (Indonesia, legacy code)"] },
+  { "tag": "it", "lang": "Italian", "regions": ["it-IT", "it-CH"], "descriptions": ["Standard Italian (as spoken in Italy)", "\"Swiss\" Italian"] },
   { "tag": "ja", "lang": "Japanese", "regions": ["ja-JP"], "descriptions": ["Japanese (Japan)"] },
+  { "tag": "kn", "lang": "Kannada", "regions": ["kn-IN"], "descriptions": ["Kannada (India)"] },
   { "tag": "ko", "lang": "Korean", "regions": ["ko-KR"], "descriptions": ["Korean (Republic of Korea)"] },
-  { "tag": "nl", "lang": "Dutch", "regions": ["nl-BE", "nl-NL"], "descriptions": ["Belgian Dutch", "Standard Dutch (as spoken in The Netherlands)"] },
-  { "tag": "no", "lang": "Norwegian", "regions": ["no-NO"], "descriptions": ["Norwegian (Norway)"] },
+  { "tag": "lt", "lang": "Lithuanian", "regions": ["lt-LT"], "descriptions": ["Lithuanian (Lithuania)"] },
+  { "tag": "mr", "lang": "Marathi", "regions": ["mr-IN"], "descriptions": ["Marathi (India)"] },
+  { "tag": "nl", "lang": "Dutch", "regions": ["nl-NL", "nl-BE"], "descriptions": ["Standard Dutch (as spoken in The Netherlands)", "Belgian Dutch"] },
+  { "tag": "no", "lang": "Norwegian", "regions": ["nb-NO", "no-NO", "nn-NO"], "descriptions": ["Norwegian Bokmål", "Norwegian (Norway)", "Norwegian Nynorsk"] },
   { "tag": "pl", "lang": "Polish", "regions": ["pl-PL"], "descriptions": ["Polish (Poland)"] },
   {
     "tag": "pt",
@@ -64,20 +69,24 @@
   { "tag": "ro", "lang": "Romanian", "regions": ["ro-RO"], "descriptions": ["Romanian (Romania)"] },
   { "tag": "ru", "lang": "Russian", "regions": ["ru-RU"], "descriptions": ["Russian (Russian Federation)"] },
   { "tag": "sk", "lang": "Slovak", "regions": ["sk-SK"], "descriptions": ["Slovak (Slovakia)"] },
+  { "tag": "sl", "lang": "Slovenian", "regions": ["sl-SI"], "descriptions": ["Slovenian (Slovenia)"] },
   { "tag": "sv", "lang": "Swedish", "regions": ["sv-SE"], "descriptions": ["Swedish (Sweden)"] },
   { "tag": "ta", "lang": "Tamil", "regions": ["ta-IN", "ta-LK"], "descriptions": ["Indian Tamil", "Sri Lankan Tamil"] },
+  { "tag": "te", "lang": "Telugu", "regions": ["te-IN"], "descriptions": ["Telugu (India)"] },
   { "tag": "th", "lang": "Thai", "regions": ["th-TH"], "descriptions": ["Thai (Thailand)"] },
   { "tag": "tr", "lang": "Turkish", "regions": ["tr-TR"], "descriptions": ["Turkish (Turkey)"] },
+  { "tag": "uk", "lang": "Ukrainian", "regions": ["uk-UA"], "descriptions": ["Ukrainian (Ukraine)"] },
+  { "tag": "vi", "lang": "Vietnamese", "regions": ["vi-VN"], "descriptions": ["Vietnamese (Vietnam)"] },
   {
     "tag": "zh",
     "lang": "Chinese (Simplified)",
-    "regions": ["zh-CN"],
-    "descriptions": ["Mainland China, simplified characters"]
+    "regions": ["zh-CN", "zh-SG"],
+    "descriptions": ["Mainland China, simplified characters", "Singapore, simplified characters"]
   },
   {
     "tag": "zh-Hant",
     "lang": "Chinese (Traditional)",
-    "regions": ["zh-TW", "zh-HK"],
-    "descriptions": ["Taiwan, traditional characters", "Hong Kong, traditional characters"]
+    "regions": ["zh-TW", "zh-HK", "yue-HK"],
+    "descriptions": ["Taiwan, traditional characters (Mandarin)", "Hong Kong, traditional characters (Cantonese)", "Cantonese (Hong Kong)"]
   }
 ]

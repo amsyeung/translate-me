@@ -1,16 +1,4 @@
 /**
- * User voice playback configuration settings for Web Speech API
- */
-export interface VoiceSettings {
-    // Voice tone adjustment, valid range: 0 ~ 2
-    pitch: number
-    // Speaking speed, valid range: 0.1 ~ 10
-    rate: number
-    // Audio volume, valid range: 0 (mute) ~ 1 (max volume)
-    volume: number
-}
-
-/**
  * Single BCP-47 language tag record loaded from bcp47.json mapping file.
  * `tag` matches the Chrome Translator/LanguageDetector API's language code
  * space exactly (e.g. `zh` vs `zh-Hant`, script subtags — not region).

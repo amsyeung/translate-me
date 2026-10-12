@@ -1,5 +1,8 @@
 name: Build & Create Release with Dist Zip
 
+# Manual fallback: rebuild a tag and (re)attach its zip to a GitHub release.
+# Normal releases are created by auto-release.yml.
+
 on:
   push:
     tags:
@@ -17,35 +20,27 @@ permissions:
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
-    environment:
-      name: production
+    env:
+      # On a manual run github.ref_name is the branch the run started from, not the input.
+      TARGET: ${{ github.event.inputs.target_ref || github.ref_name }}
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.target_ref || github.ref }}
+          ref: ${{ env.TARGET }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
 
       - name: Setup Node.js v24 LTS
         uses: actions/setup-node@v4
         with:
           node-version: 24
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - name: Cache pnpm store
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.local/share/pnpm/store
-            node_modules
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          cache: pnpm
 
       - name: Install dependencies
-        env:
-          MOTION_TOKEN: ${{ secrets.MOTION_TOKEN }}
         run: pnpm install --frozen-lockfile
 
       - name: Build extension (generate dist/)
@@ -54,12 +49,13 @@ jobs:
       - name: Zip dist folder
         run: |
           cd dist
-          zip -r ../translate-me-${{ github.ref_name }}.zip .
+          zip -qr "../translate-me-$TARGET.zip" .
 
       - name: Create GitHub Release & Upload zip asset
         uses: softprops/action-gh-release@v2
         with:
-          files: translate-me-${{ github.ref_name }}.zip
-          name: Release ${{ github.ref_name }}
+          tag_name: ${{ env.TARGET }}
+          files: translate-me-${{ env.TARGET }}.zip
+          name: Release ${{ env.TARGET }}
           generate_release_notes: true
           overwrite: true

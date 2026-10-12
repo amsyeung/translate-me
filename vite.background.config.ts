@@ -10,7 +10,7 @@ export default defineConfig({
     outDir: 'dist',
     emptyOutDir: false,
     rollupOptions: {
-      input: { background: 'src/background.ts' },
+      input: { background: 'src/background/index.ts' },
       output: {
         format: 'iife',
         entryFileNames: '[name].js',

@@ -14,7 +14,7 @@
     "release": false
   },
   "hooks": {
-    "before:init": ["pnpm lint", "pnpm run build"],
+    "before:init": ["pnpm lint", "pnpm test", "pnpm run build"],
     "after:bump": ["node scripts/sync-manifest-version.mjs", "git add public/manifest.json"]
   },
   "plugins": {
