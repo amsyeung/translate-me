@@ -98,7 +98,11 @@ export default function VoiceSection({ settings, update }: { settings: Settings;
       setStatus(`${res.voices.length} voices available.`)
     } else {
       setCloudVoices([])
-      setStatus(res.error ?? 'Could not load voices.')
+      setStatus(
+        res.error?.includes('voices_read')
+          ? 'This key can’t list voices (it lacks the “Voices: Read” permission). Paste a voice ID under Voice instead — speaking still works.'
+          : (res.error ?? 'Could not load voices.')
+      )
     }
   }, [cloud])
 
@@ -168,21 +172,27 @@ export default function VoiceSection({ settings, update }: { settings: Settings;
 
       {provider === 'elevenlabs' && (
         <>
-          <Row label="ElevenLabs key" hint="Stored only on this device.">
+          <Row label="ElevenLabs key" hint="Stored only on this device. Needs the “Text to Speech” permission; add “Voices: Read” to choose from your voice list.">
             <KeyInput value={secrets.elevenKey} onChange={(elevenKey) => saveSecret({ elevenKey })} placeholder="xi-api-key" />
             <button type="button" className={buttonClass} onClick={connect} disabled={!secrets.elevenKey}>
               Connect &amp; load voices
             </button>
           </Row>
-          <Row label="Voice">
-            <select className={inputClass} value={settings.elevenVoiceId} onChange={(e) => update({ elevenVoiceId: e.target.value })}>
-              <option value="">{cloudVoices.length ? 'First voice on my account' : 'Connect to load voices'}</option>
-              {cloudVoices.map((v) => (
-                <option key={v.id} value={v.id}>
-                  {v.name}
-                </option>
-              ))}
-            </select>
+          <Row label="Voice" hint="Choose from your list, or paste a voice ID (elevenlabs.io → Voices → ⋯ → Copy voice ID)">
+            {cloudVoices.length > 0 && (
+              <select className={inputClass} value={settings.elevenVoiceId} onChange={(e) => update({ elevenVoiceId: e.target.value })}>
+                <option value="">First voice on my account</option>
+                {settings.elevenVoiceId && !cloudVoices.some((v) => v.id === settings.elevenVoiceId) && (
+                  <option value={settings.elevenVoiceId}>Pasted voice ID</option>
+                )}
+                {cloudVoices.map((v) => (
+                  <option key={v.id} value={v.id}>
+                    {v.name}
+                  </option>
+                ))}
+              </select>
+            )}
+            <LazyInput value={settings.elevenVoiceId} onCommit={(elevenVoiceId) => update({ elevenVoiceId })} placeholder="Voice ID" className="w-64" />
           </Row>
           <Row label="Model">
             <select className={inputClass} value={settings.elevenModel} onChange={(e) => update({ elevenModel: e.target.value })}>
