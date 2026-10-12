@@ -215,6 +215,9 @@ export class PageTranslator {
           if (!language || language === this.tgtLang) continue
           const translated = await translate(text, language, this.tgtLang, { signal })
           if (!live()) return
+          // Names, brands and codes often come back unchanged; repeating them adds noise.
+          const same = (s: string) => s.replace(/\s+/g, ' ').trim().toLowerCase()
+          if (same(translated) === same(text)) continue
           const out = document.createElement('span')
           out.setAttribute(OUTPUT_ATTR, '')
           out.setAttribute('translate', 'no')

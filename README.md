@@ -1,89 +1,153 @@
-# translate me
-
 <div align="center">
-  <picture>
-    <img src="images/store-icon-removebg.png" alt="store-icon" height="256">
-  </picture>
-  
-  <a href="https://vite.dev"><img alt="Vite logo" src="https://img.shields.io/badge/MADE%20BY%20Vite-000000.svg?style=for-the-badge&logo=Vite&labelColor=000"></a>
-  <a href="./LICENSE"><img alt="License" src="https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge&labelColor=000000"></a>  
+  <img src="images/store-icon-removebg.png" alt="translate me icon" height="128">
 
-  [View Chrome Extension](https://chromewebstore.google.com/detail/translate-me/fkoepnkpnaebnedkdnljkcdchljfoadi)
+  <h1>translate me</h1>
 
+  <p><strong>Select any text on any page and read it in your language, instantly and privately.</strong><br>
+  Powered by the AI model built into Chrome, so it's free and nothing you read leaves your computer.</p>
+
+  <a href="https://chromewebstore.google.com/detail/translate-me/fkoepnkpnaebnedkdnljkcdchljfoadi"><img alt="Chrome Web Store version" src="https://img.shields.io/chrome-web-store/v/fkoepnkpnaebnedkdnljkcdchljfoadi?style=for-the-badge&logo=googlechrome&logoColor=white&label=Chrome%20Web%20Store&labelColor=000"></a>
+  <a href="./LICENSE"><img alt="License: GPLv3" src="https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge&labelColor=000"></a>
+  <a href="https://vite.dev"><img alt="Made with Vite" src="https://img.shields.io/badge/Made%20with-Vite-646CFF.svg?style=for-the-badge&logo=vite&logoColor=white&labelColor=000"></a>
+
+  <p><a href="https://chromewebstore.google.com/detail/translate-me/fkoepnkpnaebnedkdnljkcdchljfoadi"><strong>➜ Add to Chrome — it's free</strong></a></p>
 </div>
 
-# ⚙️ Features
+![Selecting a paragraph shows its translation in a card right below it](images/highlight.png)
 
-- **Highlight to translate** – select text on any page and the translation appears in a card next to it. The card never covers the text you selected and stays on screen at the window edges. You can switch the source or target language right in the card, listen to the original or the translation, copy it, pin the card, or drag it out of the way.
-  - Three trigger modes: *show instantly*, *show a button first*, or *only while holding Alt / ⌥ Option*.
-  - Turn it off per site or everywhere from the toolbar popup, or with a keyboard shortcut.
-  - **Bilingual pair**: text that is already in your target language is translated into your second language instead.
-- **Accurate language detection** – detects by writing system first (Japanese kana, Korean, Thai, Traditional vs Simplified Chinese…), then Chrome's on-device detector with a confidence threshold, using the page language and your browser languages to resolve short, ambiguous text.
-- **Popup and side panel translator** – with quick-switch chips for recently used languages.
-- **Whole-page translation** – right-click → *Translate page*: each paragraph gets its translation underneath, on-device, including content that loads later.
-- **Voices** – the best installed voice is picked per language and region (e.g. Cantonese for Hong Kong users), and you can choose your own in Settings. Optionally bring your own **Azure Speech** or **ElevenLabs** key for natural neural voices, with a monthly character budget and a local audio cache.
-- **History** – highlight translations are kept locally and can be exported as CSV (imports into Anki).
+## Why translate me?
 
-Requires desktop Chrome 138 or newer (Windows, macOS, Linux, ChromeOS).
+- **Free and private.** Translation runs on your computer with Chrome's built-in model. There's no account, no API key, and your text is never sent to a server.
+- **Stays out of your way.** The translation card sits next to what you selected without covering it. You can have it appear instantly, behind a small button, or only while you hold <kbd>Alt</kbd>.
+- **Gets the language right.** Japanese, Korean, Thai, and Traditional vs Simplified Chinese are recognised from their writing system. Short or ambiguous text uses the page's language and yours as hints.
+- **39 languages**, including Chinese (Traditional), Japanese, Korean, Vietnamese and Ukrainian.
+
+## Features
+
+### Highlight to translate
+
+Select text and the translation appears beside it. From the card you can:
+
+- change the source or target language (your choice is remembered everywhere)
+- 🔊 listen to the original or the translation
+- copy the translation
+- 📌 pin the card, or drag it out of the way
+- close it with <kbd>Esc</kbd> or a click elsewhere
+
+| When to show it | Best for |
+| --- | --- |
+| **As soon as I select text** | Reading in a foreign language |
+| **After I click a translate button** | Occasional look-ups, without interruptions |
+| **Only when I hold Alt (⌥ on Mac)** | Pages where you select text a lot, like docs and editors |
+
+You can turn it off for one site, or everywhere, from the toolbar popup. Selections inside text boxes are ignored by default.
+
+**Bilingual pair:** set a second language, and text that's already in your target language is translated into it instead. For example, English pages become Chinese and Chinese pages become English.
+
+### Whole-page translation
+
+Right-click the page and choose **Translate page to …**. Each paragraph gets its translation underneath, so you can read both. Paragraphs are translated as you scroll, including content that loads later. **Show original** removes it all.
+
+![Each paragraph of an English article followed by its Traditional Chinese translation](images/page-translation.png)
+
+### Popup and side panel
+
+<img src="images/popup.png" alt="The toolbar popup translating a question into Traditional Chinese" width="400" align="right">
+
+Type or paste anything into the toolbar popup. The source language is detected for you. The chips are the languages you used most recently; click one to switch. Open the **side panel** if you want the translator to stay open while you browse.
+
+The **Translate on select** line shows whether highlight-to-translate is on. Click it to change how it works.
+
+<br clear="right">
+
+### Voices
+
+Every 🔊 button picks the best voice installed on your computer for that language and region. For example, a Hong Kong user hears Cantonese for Traditional Chinese, and a Taiwan user hears Mandarin. You can choose a different voice per language in Settings.
+
+For more natural voices, add your own **Azure Speech** key (the free tier is plenty for personal use, and includes Cantonese) or **ElevenLabs** key. ElevenLabs gets a monthly character budget so it can't use up your credits. Audio is cached locally, so replaying is free.
+
+### History
+
+Text you translate with the card is kept on your computer. Export it as CSV from Settings; it imports straight into Anki.
 
 <details>
-<summary>pop-up translate</summary>
+<summary><strong>Settings</strong> (screenshot)</summary>
 
-![popup](images/screenshot-popup.png)
+![The settings page: languages, highlight-to-translate options, shortcuts and voices](images/settings.png)
 
 </details>
 
-<details>
-<summary>translate selected text</summary>
+## Getting started
 
-![selected](images/screenshot-highlight.jpg)
-
-</details>
-
-<details>
-<summary>settings control</summary>
-
-![options](images/screenshot-options.jpg)
-</details>
-
-## ⌨️ Shortcuts
+1. [Install from the Chrome Web Store](https://chromewebstore.google.com/detail/translate-me/fkoepnkpnaebnedkdnljkcdchljfoadi). You need **desktop Chrome 138 or newer** on Windows, macOS, Linux or ChromeOS.
+2. Reload any tabs that were already open.
+3. Select some text. The first time you use a language pair, Chrome downloads its model once. If the card shows a **Download** button, click it to start.
 
 | Shortcut | Action |
 | --- | --- |
 | <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd> | Translate the selected text |
-| <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd> | Turn highlight-to-translate on/off |
+| <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd> | Turn highlight-to-translate on or off |
 | <kbd>Esc</kbd> | Close the translation card |
 
-Change them at `chrome://extensions/shortcuts`.
+Change shortcuts at `chrome://extensions/shortcuts`. If another app already uses a shortcut, Chrome leaves it unset.
 
-## 📄 Privacy & Security
+<details>
+<summary><strong>Supported languages</strong></summary>
 
-- **On-device translation** – text is translated and its language detected by Chrome's built-in models on your computer. It is not sent to any server.
-- **No personal data** – IP addresses, browsing history, or identifiers are never collected.
-- **Local storage only** – settings sync through your Chrome profile (`chrome.storage.sync`); translation history and API keys stay on this device (`chrome.storage.local`) and are removed with the extension.
-- **Optional cloud voices** – only if you add your own Azure or ElevenLabs key: the text you choose to listen to is sent to that provider to generate audio. The extension asks for network access to that provider only when you connect it.
-- **Google Translate page link** – the *Open page in Google Translate* menu item sends the page URL to Google, as visiting Google Translate would.
+Arabic, Bangla, Bulgarian, Chinese (Simplified), Chinese (Traditional), Croatian, Czech, Danish, Dutch, English, Finnish, French, German, Greek, Hebrew, Hindi, Hungarian, Indonesian, Italian, Japanese, Kannada, Korean, Lithuanian, Marathi, Norwegian, Polish, Portuguese, Romanian, Russian, Slovak, Slovenian, Spanish, Swedish, Tamil, Telugu, Thai, Turkish, Ukrainian, Vietnamese.
 
-See full policy [here](https://translateme-privacy.netlify.app/)
+This is the list Chrome's built-in translator supports.
+</details>
 
-## 🛠 Development
+<details>
+<summary><strong>Troubleshooting</strong></summary>
+
+- **Nothing happens when I select text.**
+  - Check the *Translate on select* line in the popup: it may be off, set to *button* or *Alt* mode, or turned off for this site.
+  - Tabs opened before installing or updating need a reload.
+  - Chrome doesn't let extensions run on `chrome://` pages, the Web Store or the built-in PDF viewer.
+- **"Chrome's built-in translator isn't available."** You need desktop Chrome 138+. The built-in AI isn't available on mobile.
+- **"This embedded frame doesn't allow Chrome's translator."** Some sites embed content from another site in a frame that blocks the translator. Open that content in its own tab.
+- **The voice sounds robotic, or is the wrong accent.**
+  - Pick a different voice in *Settings → Voice*.
+  - Install more voices: on Windows in *Settings → Time & language → Speech*; on macOS in *System Settings → Accessibility → Spoken Content*.
+  - Or connect Azure Speech.
+</details>
+
+## Privacy
+
+- **On-device translation.** Text is translated, and its language detected, by Chrome's built-in models on your computer. It isn't sent anywhere.
+- **No personal data.** No analytics, and no IP addresses, browsing history or identifiers are collected.
+- **Your data stays local.** Settings sync through your Chrome profile. Translation history and API keys stay on this device and are removed with the extension.
+- **Optional cloud voices.** Only if you add your own Azure or ElevenLabs key: the text you choose to listen to is sent to that provider to generate the audio. The extension asks for network access to the provider only when you connect it.
+- **Open page in Google Translate.** This menu item sends the page's address to Google, the same as visiting Google Translate yourself.
+
+Full policy: [translateme-privacy.netlify.app](https://translateme-privacy.netlify.app/)
+
+## Development
 
 ```bash
 pnpm install
-pnpm test    # unit tests (vitest)
-pnpm build   # outputs the unpacked extension to dist/
+pnpm test     # unit tests (vitest)
+pnpm build    # builds the unpacked extension into dist/
 ```
 
-Load `dist/` via `chrome://extensions` → *Developer mode* → *Load unpacked*.
+Load `dist/` at `chrome://extensions` → *Developer mode* → *Load unpacked*. After rebuilding, click ↻ on the extension card and reload your tabs.
 
-Releases are automatic on merge to `main` (version bump, changelog, GitHub release, Chrome Web Store submission). See [docs/PUBLISHING.md](docs/PUBLISHING.md) for the one-time store setup.
+| Path | What's there |
+| --- | --- |
+| `src/core/` | Language detection, translation, settings and voice ranking, shared by every part of the extension |
+| `src/content/` | The highlight card, its placement, and page translation (runs inside web pages) |
+| `src/background/` | Service worker: context menus, shortcuts, and speech (browser, Azure, ElevenLabs) |
+| `src/component/`, `src/options/` | Popup / side panel and settings page (React) |
+| `tests/` | Unit tests |
 
-## 📬 Support & Feedback
+Merging to `main` releases automatically: version bump, changelog, GitHub release, and Chrome Web Store submission. See [docs/PUBLISHING.md](docs/PUBLISHING.md) for the one-time store setup.
 
-Got questions or want a new feature?
+## Support
 
-Open an issue on GitHub or email me at yeung.ming.sang@gmail.com
+Questions or ideas? [Open an issue](https://github.com/amsyeung/translate-me/issues) or email yeung.ming.sang@gmail.com.
 
-## 🎉 Thanks for using Translate‑Me!
+If translate me is useful to you, you can [buy me a coffee ☕](https://buymeacoffee.com/amsy). It keeps the project maintained and free for everyone.
 
-Happy translating! 🚀
+Licensed under [GPLv3](./LICENSE).
