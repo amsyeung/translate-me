@@ -146,7 +146,7 @@ Merging to `main` releases automatically: version bump, changelog, GitHub releas
 
 ## Support
 
-Questions or ideas? [Open an issue](https://github.com/amsyeung/translate-me/issues) or email yeung.ming.sang@gmail.com.
+Questions or ideas? [Open an issue](https://github.com/amsyeung/translate-me/issues) or email info@aoricreative.com.
 
 If translate me is useful to you, you can [buy me a coffee ☕](https://buymeacoffee.com/amsy). It keeps the project maintained and free for everyone.
 
