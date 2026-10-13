@@ -13,7 +13,7 @@
   <p><a href="https://chromewebstore.google.com/detail/translate-me/fkoepnkpnaebnedkdnljkcdchljfoadi"><strong>➜ Add to Chrome — it's free</strong></a></p>
 </div>
 
-![Selecting a paragraph shows its translation in a card right below it](images/highlight.png)
+![Selecting the opening paragraph of the Wikipedia article on Victoria Harbour shows its Traditional Chinese translation in a card right below it](images/highlight.png)
 
 ## Why translate me?
 
@@ -48,11 +48,11 @@ You can turn it off for one site, or everywhere, from the toolbar popup. Selecti
 
 Right-click the page and choose **Translate page to …**. Each paragraph gets its translation underneath, so you can read both. Paragraphs are translated as you scroll, including content that loads later. **Show original** removes it all.
 
-![Each paragraph of an English article followed by its Traditional Chinese translation](images/page-translation.png)
+![The Wikipedia article on Victoria Harbour, each paragraph and caption followed by its Traditional Chinese translation](images/page-translation.png)
 
 ### Popup and side panel
 
-<img src="images/popup.png" alt="The toolbar popup translating a question into Traditional Chinese" width="400" align="right">
+<img src="images/popup.png" alt="The toolbar popup translating &quot;How do I get to Victoria Harbour?&quot; into Traditional Chinese" width="400" align="right">
 
 Type or paste anything into the toolbar popup. The source language is detected for you. The chips are the languages you used most recently; click one to switch. Open the **side panel** if you want the translator to stay open while you browse.
 
