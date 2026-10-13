@@ -235,6 +235,7 @@ export class PageTranslator {
             return
           }
           // Unsupported pair, a model this block's language still needs, an odd block: skip it.
+          console.debug('[translate-me] page translation skipped a block:', (err as Error)?.message ?? err)
         }
       }
     } finally {
