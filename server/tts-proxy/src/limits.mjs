@@ -48,6 +48,46 @@ export class SlidingWindow {
 }
 
 /**
+ * Characters per key (per IP) in a fixed window, so one person can't use up everyone's
+ * share. Kept in memory only: a restart forgives everyone, which is harmless.
+ */
+export class KeyedCharBudget {
+  constructor(limit, windowMs = 86_400_000, now = () => Date.now()) {
+    this.limit = limit
+    this.windowMs = windowMs
+    this.now = now
+    this.windows = new Map()
+  }
+
+  current(key, t) {
+    const w = this.windows.get(key)
+    return w && t - w.start < this.windowMs ? w : null
+  }
+
+  /** Seconds to wait if `chars` more would go over the limit, else 0. */
+  check(key, chars) {
+    const t = this.now()
+    const w = this.current(key, t)
+    if (!w || w.chars + chars <= this.limit) return 0
+    return Math.ceil((w.start + this.windowMs - t) / 1000)
+  }
+
+  spend(key, chars) {
+    const t = this.now()
+    let w = this.current(key, t)
+    if (!w) {
+      w = { start: t, chars: 0 }
+      this.windows.set(key, w)
+    }
+    w.chars += chars
+  }
+
+  prune(t = this.now()) {
+    for (const [k, w] of this.windows) if (t - w.start >= this.windowMs) this.windows.delete(k)
+  }
+}
+
+/**
  * Daily and monthly character budget, persisted so a restart doesn't reset it.
  * Only characters actually sent to Azure count (cache hits are free).
  */

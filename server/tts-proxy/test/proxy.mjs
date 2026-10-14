@@ -8,13 +8,15 @@ import { after, before, beforeEach, describe, it } from 'node:test'
 import { createApp, parseTtsRequest } from '../src/app.mjs'
 import { AzureClient, percent, xmlEscape } from '../src/azure.mjs'
 import { AudioCache } from '../src/cache.mjs'
-import { Budget, SlidingWindow, WindowCounter } from '../src/limits.mjs'
+import { Budget, KeyedCharBudget, SlidingWindow, WindowCounter } from '../src/limits.mjs'
 
 const ORIGIN = 'chrome-extension://fkoepnkpnaebnedkdnljkcdchljfoadi'
 const VOICES = [
   { ShortName: 'zh-HK-HiuMaanNeural', LocalName: '曉曼', Locale: 'zh-HK', Gender: 'Female', VoiceType: 'Neural' },
   { ShortName: 'zh-HK-WanLungNeural', LocalName: '雲龍', Locale: 'zh-HK', Gender: 'Male', VoiceType: 'Neural' },
   { ShortName: 'zh-TW-HsiaoChenNeural', LocalName: '曉臻', Locale: 'zh-TW', Gender: 'Female', VoiceType: 'Neural' },
+  { ShortName: 'zh-TW-YunJheNeural', LocalName: '雲哲', Locale: 'zh-TW', Gender: 'Male', VoiceType: 'Neural' },
+  { ShortName: 'en-CA-ClaraNeural', LocalName: 'Clara', Locale: 'en-CA', Gender: 'Female', VoiceType: 'Neural' },
   { ShortName: 'en-US-AvaNeural', LocalName: 'Ava', Locale: 'en-US', Gender: 'Female', VoiceType: 'Neural' },
   { ShortName: 'en-GB-SoniaNeural', LocalName: 'Sonia', Locale: 'en-GB', Gender: 'Female', VoiceType: 'Neural' },
 ]
@@ -60,6 +62,7 @@ async function startProxy(overrides = {}) {
     maxChars: 300,
     perIpPerMinute: 100,
     perIpPerDay: 1000,
+    perIpCharsPerDay: 100_000,
     azurePerMinute: 100,
     dailyCharLimit: 10_000,
     monthlyCharLimit: 100_000,
@@ -113,7 +116,7 @@ describe('synthesis', () => {
     assert.equal(first.status, 200)
     assert.equal(first.headers.get('content-type'), 'audio/mpeg')
     assert.equal(first.headers.get('x-cache'), 'MISS')
-    assert.equal(first.headers.get('x-voice'), 'zh-HK-HiuMaanNeural')
+    assert.equal(first.headers.get('x-voice'), 'zh-HK-WanLungNeural')
     assert.equal(first.headers.get('access-control-allow-origin'), ORIGIN)
     assert.match(Buffer.from(await first.arrayBuffer()).toString(), /^MP3:/)
 
@@ -127,19 +130,19 @@ describe('synthesis', () => {
     await tts({ text: 'a < b & "c"', locales: ['en-US'] })
     assert.ok(azure.state.keySeen.every((k) => k === 'test-key'))
     assert.match(azure.state.calls[0], /a &lt; b &amp; &quot;c&quot;/)
-    assert.match(azure.state.calls[0], /en-US-AvaNeural/)
+    assert.match(azure.state.calls[0], /en-CA-ClaraNeural/, 'a default may come from another region of the language')
   })
 
   it('follows the client locale order (Taiwan user gets Mandarin)', async () => {
     const res = await tts({ text: '你好', locales: ['zh-TW', 'zh-HK'] })
-    assert.equal(res.headers.get('x-voice'), 'zh-TW-HsiaoChenNeural')
+    assert.equal(res.headers.get('x-voice'), 'zh-TW-YunJheNeural')
   })
 
   it('honours a requested voice that matches the language', async () => {
-    const res = await tts({ text: '你好', locales: ['zh-HK'], voice: 'zh-HK-WanLungNeural' })
-    assert.equal(res.headers.get('x-voice'), 'zh-HK-WanLungNeural')
+    const res = await tts({ text: '你好', locales: ['zh-HK'], voice: 'zh-HK-HiuMaanNeural' })
+    assert.equal(res.headers.get('x-voice'), 'zh-HK-HiuMaanNeural')
     const wrong = await tts({ text: '你好', locales: ['zh-HK'], voice: 'en-US-AvaNeural' })
-    assert.equal(wrong.headers.get('x-voice'), 'zh-HK-HiuMaanNeural')
+    assert.equal(wrong.headers.get('x-voice'), 'zh-HK-WanLungNeural')
   })
 
   it('shares one Azure call between identical concurrent requests', async () => {
@@ -178,6 +181,19 @@ describe('limits', () => {
     assert.ok(Number(third.headers.get('retry-after')) > 0)
   })
 
+  it("limits each IP's characters per day, so one person can't use up everyone's share", async () => {
+    await startProxy({ perIpCharsPerDay: 12 })
+    const ip = (n) => ({ 'CF-Connecting-IP': `203.0.113.${n}` })
+    assert.equal((await tts({ text: 'hello world', locales: ['en-US'] }, ip(1))).status, 200) // 11 chars
+    const over = await tts({ text: 'more text', locales: ['en-US'] }, ip(1))
+    assert.equal(over.status, 429)
+    assert.equal((await over.json()).error, 'personal_budget')
+    assert.ok(Number(over.headers.get('retry-after')) > 0)
+    assert.equal((await tts({ text: 'hello world', locales: ['en-US'] }, ip(1))).headers.get('x-cache'), 'HIT', 'cached audio is free')
+    assert.equal((await tts({ text: 'more text', locales: ['en-US'] }, ip(2))).status, 200, 'other people are unaffected')
+    assert.equal(budget.snapshot().dayChars, 20)
+  })
+
   it('stops calling Azure when the daily budget is spent, but still serves cached audio', async () => {
     await startProxy({ dailyCharLimit: 10 })
     assert.equal((await tts({ text: 'hello', locales: ['en-US'] })).status, 200)
@@ -211,6 +227,20 @@ describe('units', () => {
     assert.equal(c.hit('b'), 0)
     t = 1000
     assert.equal(c.hit('a'), 0)
+  })
+
+  it('KeyedCharBudget counts characters per key and resets after its window', () => {
+    let t = 0
+    const b = new KeyedCharBudget(10, 1000, () => t)
+    assert.equal(b.check('a', 10), 0)
+    b.spend('a', 8)
+    assert.ok(b.check('a', 3) > 0)
+    assert.equal(b.check('a', 2), 0)
+    assert.equal(b.check('b', 10), 0)
+    t = 1000
+    assert.equal(b.check('a', 10), 0)
+    b.prune()
+    assert.equal(b.windows.size, 0)
   })
 
   it('SlidingWindow frees slots as they age out', () => {

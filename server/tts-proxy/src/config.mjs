@@ -28,10 +28,13 @@ export function loadConfig() {
     maxChars: int('MAX_CHARS', 300),
     perIpPerMinute: int('PER_IP_PER_MINUTE', 20),
     perIpPerDay: int('PER_IP_PER_DAY', 400),
-    // Azure F0 allows 20 requests per 60 s and ~500k characters a month; stay under both.
+    // Characters one IP may send to Azure per day (cache hits are free).
+    perIpCharsPerDay: int('PER_IP_CHARS_PER_DAY', 2000),
+    // Azure F0 allows 20 requests per 60 s and ~500k characters a month; stay under both,
+    // leaving ~100k a month for the owner's own use of the same F0 resource.
     azurePerMinute: int('AZURE_PER_MINUTE', 18),
-    dailyCharLimit: int('DAILY_CHAR_LIMIT', 15000),
-    monthlyCharLimit: int('MONTHLY_CHAR_LIMIT', 450000),
+    dailyCharLimit: int('DAILY_CHAR_LIMIT', 13000),
+    monthlyCharLimit: int('MONTHLY_CHAR_LIMIT', 400000),
     cacheMaxMb: int('CACHE_MAX_MB', 300),
   }
   if (!config.azureKey) throw new Error('AZURE_SPEECH_KEY is required')

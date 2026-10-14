@@ -2,12 +2,16 @@ import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { azureBase } from './config.mjs'
 
-/** Natural-sounding defaults for common locales; anything else gets the first neural voice for its locale. */
+/**
+ * Natural-sounding defaults for common locales, picked by ear; anything else gets the first
+ * neural voice for its locale. A default may come from another region of the same language.
+ */
 const PREFERRED = {
-  'en-US': 'en-US-AvaNeural',
+  'en-US': 'en-CA-ClaraNeural',
+  'en-CA': 'en-CA-ClaraNeural',
   'en-GB': 'en-GB-SoniaNeural',
-  'zh-HK': 'zh-HK-HiuMaanNeural',
-  'zh-TW': 'zh-TW-HsiaoChenNeural',
+  'zh-HK': 'zh-HK-WanLungNeural',
+  'zh-TW': 'zh-TW-YunJheNeural',
   'zh-CN': 'zh-CN-XiaoxiaoNeural',
   'ja-JP': 'ja-JP-NanamiNeural',
   'ko-KR': 'ko-KR-SunHiNeural',
@@ -76,7 +80,7 @@ export class AzureClient {
       const forLocale = voices.filter((v) => v.locale.toLowerCase() === locale)
       if (!forLocale.length) continue
       const preferred = Object.entries(PREFERRED).find(([l]) => l.toLowerCase() === locale)?.[1]
-      return forLocale.find((v) => v.id === preferred) ?? forLocale[0]
+      return voices.find((v) => v.id === preferred) ?? forLocale[0]
     }
     // No exact locale: any voice of the same language.
     const primary = new Set(wanted.map((l) => l.split('-')[0]))

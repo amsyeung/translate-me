@@ -35,7 +35,7 @@ const PROVIDERS: { id: TtsProvider; label: string; hint: string }[] = [
   {
     id: 'shared',
     label: 'translate me natural voices (free)',
-    hint: 'Microsoft neural voices, including Cantonese, from the translate me voice server. The text you listen to is sent to that server and Microsoft Azure to make the audio. Shared daily limit; falls back to browser voices.',
+    hint: 'Microsoft neural voices, including Cantonese, from the translate me voice server. The text you listen to is sent to that server and Microsoft Azure to make the audio. Free daily allowance per person; after that, browser voices are used.',
   },
   { id: 'azure', label: 'Azure Speech (your key)', hint: 'Natural neural voices incl. Cantonese. Free tier is ample for personal use.' },
   { id: 'elevenlabs', label: 'ElevenLabs (your key)', hint: 'Most natural, uses your credits — guarded by a monthly budget.' },

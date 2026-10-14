@@ -106,9 +106,12 @@ Then, in the extension, go to *Settings → Voice*, choose **translate me natura
 | Stop | `docker compose down` (the cache and usage counters live in the `tts-data` volume) |
 
 All limits can be tuned in `.env` (see `.env.example`). The defaults keep you within F0:
-- **Monthly:** 450,000 characters (F0 allows about 500,000)
-- **Daily:** 15,000 characters, so one busy day can't use up the whole month
-- **Per IP:** 20 requests per minute, 400 per day
+- **Monthly:** 400,000 characters. F0 allows about 500,000, and the rest is left for your own use of the same F0 resource (only one F0 Speech resource is allowed per subscription).
+- **Daily:** 13,000 characters, so one busy day can't use up the whole month
+- **Per IP:** 2,000 characters a day, so one person can't use up everyone's share; plus 20 requests per minute and 400 per day
+- Cached audio is free and doesn't count toward any character limit.
+
+If Azure ever started charging for F0, these caps still bound the cost: 400,000 characters is roughly US$6–7 at current neural voice prices.
 
 **Optional extra protection:** in Cloudflare → *Security* → *WAF*, add a rate-limiting rule for `tts.aoricreative.com/v1/*`.
 

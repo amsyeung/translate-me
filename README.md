@@ -64,7 +64,7 @@ The **Translate on select** line shows whether highlight-to-translate is on. Cli
 
 Every 🔊 button picks the best voice installed on your computer for that language and region. For example, a Hong Kong user hears Cantonese for Traditional Chinese, and a Taiwan user hears Mandarin. You can choose a different voice per language in Settings.
 
-For more natural voices, switch to **translate me natural voices** in *Settings → Voice*. These are free Microsoft neural voices (including Cantonese), served by the project's own voice server under a shared daily limit; when the limit is reached, the browser voice is used instead. You can also bring your own **Azure Speech** or **ElevenLabs** key. ElevenLabs gets a monthly character budget so it can't use up your credits. Audio is cached locally, so replaying is free.
+For more natural voices, switch to **translate me natural voices** in *Settings → Voice*. These are free Microsoft neural voices (including Cantonese), served by the project's own voice server. Each person gets a free daily allowance; after that, the browser voice is used instead. You can also bring your own **Azure Speech** or **ElevenLabs** key. ElevenLabs gets a monthly character budget so it can't use up your credits. Audio is cached locally, so replaying is free.
 
 ### History
 

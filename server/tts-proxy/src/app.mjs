@@ -1,7 +1,7 @@
 import { createServer } from 'node:http'
 import { AudioCache } from './cache.mjs'
 import { AzureError } from './azure.mjs'
-import { SlidingWindow, WindowCounter } from './limits.mjs'
+import { KeyedCharBudget, SlidingWindow, WindowCounter } from './limits.mjs'
 
 const LOCALE = /^[a-z]{2,3}(-[A-Za-z0-9]{2,8}){0,2}$/
 const VOICE_ID = /^[A-Za-z0-9-]{3,80}$/
@@ -60,6 +60,7 @@ export function parseTtsRequest(raw, maxChars) {
 export function createApp({ config, azure, cache, budget, log = console }) {
   const perIpMinute = new WindowCounter(config.perIpPerMinute, 60_000)
   const perIpDay = new WindowCounter(config.perIpPerDay, 86_400_000)
+  const perIpChars = new KeyedCharBudget(config.perIpCharsPerDay)
   const azureWindow = new SlidingWindow(config.azurePerMinute)
   const inflight = new Map()
   const stats = { started: new Date().toISOString(), requests: 0, cacheHits: 0, azureCalls: 0, rejected: 0 }
@@ -67,6 +68,7 @@ export function createApp({ config, azure, cache, budget, log = console }) {
   const pruner = setInterval(() => {
     perIpMinute.prune()
     perIpDay.prune()
+    perIpChars.prune()
   }, 10 * 60_000)
   pruner.unref()
 
@@ -83,13 +85,15 @@ export function createApp({ config, azure, cache, budget, log = console }) {
     res.end(JSON.stringify(body))
   }
 
+  /** Count the request against its IP's limits; returns the IP (kept in memory only). */
   function limitByIp(req) {
     const ip = req.headers['cf-connecting-ip'] || req.socket.remoteAddress || 'unknown'
     const wait = perIpMinute.hit(ip) || perIpDay.hit(ip)
     if (wait) throw new HttpError(429, 'rate_limited', 'Too many requests, slow down', wait)
+    return ip
   }
 
-  async function synthesize({ text, locales, voice: requested, rate, pitch }) {
+  async function synthesize({ text, locales, voice: requested, rate, pitch }, ip) {
     const voice = await azure.pickVoice(locales, requested)
     if (!voice) throw new HttpError(404, 'no_voice', `No voice for ${locales.join(', ')}`)
     const key = AudioCache.key([voice.id, rate, pitch, text])
@@ -105,6 +109,8 @@ export function createApp({ config, azure, cache, budget, log = console }) {
     if (!pending) {
       pending = (async () => {
         const chars = [...text].length
+        const ipWait = perIpChars.check(ip, chars)
+        if (ipWait) throw new HttpError(429, 'personal_budget', "You've used today's share of the free voices; try again tomorrow", ipWait)
         const over = budget.check(chars)
         if (over) throw new HttpError(429, `${over}_budget`, `The shared ${over} character budget is used up; try again later`, over === 'daily' ? 3600 : 86400)
         const wait = azureWindow.take()
@@ -112,6 +118,7 @@ export function createApp({ config, azure, cache, budget, log = console }) {
         stats.azureCalls++
         const audio = await azure.synthesize(text, voice, rate, pitch)
         budget.spend(chars)
+        perIpChars.spend(ip, chars)
         await cache.put(key, audio)
         return audio
       })().finally(() => inflight.delete(key))
@@ -151,9 +158,9 @@ export function createApp({ config, azure, cache, budget, log = console }) {
 
       if (req.method !== 'POST' || url.pathname !== '/v1/tts') throw new HttpError(405, 'method', 'Method not allowed')
 
-      limitByIp(req)
+      const ip = limitByIp(req)
       const request = parseTtsRequest(await readBody(req), config.maxChars)
-      const { audio, voice, hit } = await synthesize(request)
+      const { audio, voice, hit } = await synthesize(request, ip)
       res.writeHead(200, {
         'Content-Type': 'audio/mpeg',
         'Content-Length': audio.length,
