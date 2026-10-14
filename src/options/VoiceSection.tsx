@@ -153,6 +153,9 @@ export default function VoiceSection({ settings, update }: { settings: Settings;
               </span>
             </label>
           ))}
+          <p className="text-xs text-zinc-500">
+            🔒 Your API key stays on this computer and is sent only to Azure or ElevenLabs. We never see it.
+          </p>
         </div>
       </Row>
 
