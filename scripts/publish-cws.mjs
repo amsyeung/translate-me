@@ -10,7 +10,7 @@
  * Environment:
  *   CWS_ACCESS_TOKEN   OAuth access token with the chromewebstore scope
  *                      (in CI: minted by google-github-actions/auth, never stored)
- *   CWS_PUBLISHER_ID   Developer Dashboard → Account → Publisher ID
+ *   CWS_PUBLISHER_ID   Developer Dashboard → Settings → Publisher ID
  *   CWS_EXTENSION_ID   The item ID in the store URL
  *
  * Every API call can return HTTP 200 with a failed state in the body, so states are

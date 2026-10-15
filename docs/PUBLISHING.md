@@ -12,7 +12,7 @@ GitHub never stores a Google secret. Each run exchanges GitHub's short-lived OID
 
 ### 1. Google Cloud
 
-Use a dedicated project, e.g. `translate-me-publish`, so the publishing identity is separate from anything else.
+Use a dedicated project, e.g. `translate-me-publish`, so the publishing identity is separate from anything else. (This repo's setup uses the existing project `gen-lang-client-0828784551`.)
 
 1. **Enable APIs** (*APIs & Services → Library*):
    - **Chrome Web Store API**
@@ -27,6 +27,8 @@ Use a dedicated project, e.g. `translate-me-publish`, so the publishing identity
    SA=cws-publisher@$PROJECT_ID.iam.gserviceaccount.com
    REPO=amsyeung/translate-me
    PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format='value(projectNumber)')
+
+   gcloud services enable iamcredentials.googleapis.com sts.googleapis.com chromewebstore.googleapis.com --project=$PROJECT_ID
 
    gcloud iam workload-identity-pools create github \
      --project=$PROJECT_ID --location=global --display-name="GitHub Actions"
@@ -50,8 +52,8 @@ Use a dedicated project, e.g. `translate-me-publish`, so the publishing identity
 ### 2. Chrome Web Store Developer Dashboard
 
 1. Make sure **2-Step Verification** is on for the Google account that owns the extension.
-2. Go to *Account* and add the service account email under **Service account**. A publisher can have only one.
-3. On the same page, copy your **Publisher ID**.
+2. Go to *Settings* (under **Publisher** in the left menu) and add the service account email under **Service account**. A publisher can have only one.
+3. At the top of the same page (*Profile*), copy your **Publisher ID**.
 
 ### 3. GitHub repository
 
