@@ -105,7 +105,7 @@ Then, in the extension, go to *Settings → Voice*, choose **translate me natura
 | Usage this month | `curl https://tts.aoricreative.com/health` |
 | Stop | `docker compose down` (the cache and usage counters live in the `tts-data` volume) |
 
-All limits can be tuned in `.env` (see `.env.example`). The defaults keep you within F0:
+All limits can be tuned in `.env` (see `.env.example`). Characters are counted the way Azure bills them: Chinese, Japanese and Korean characters count twice, and any `<prosody>` markup (sent only when speed or pitch isn't 1) counts too. The defaults keep you within F0:
 - **Monthly:** 400,000 characters. F0 allows about 500,000, and the rest is left for your own use of the same F0 resource (only one F0 Speech resource is allowed per subscription).
 - **Daily:** 13,000 characters, so one busy day can't use up the whole month
 - **Per IP:** 2,000 characters a day, so one person can't use up everyone's share; plus 20 requests per minute and 400 per day

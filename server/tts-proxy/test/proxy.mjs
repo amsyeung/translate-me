@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { after, before, beforeEach, describe, it } from 'node:test'
 import { createApp, parseTtsRequest } from '../src/app.mjs'
-import { AzureClient, percent, xmlEscape } from '../src/azure.mjs'
+import { AzureClient, billableChars, percent, ssmlBody, xmlEscape } from '../src/azure.mjs'
 import { AudioCache } from '../src/cache.mjs'
 import { Budget, KeyedCharBudget, SlidingWindow, WindowCounter } from '../src/limits.mjs'
 
@@ -124,7 +124,7 @@ describe('synthesis', () => {
     const second = await tts({ text: '你好 世界', locales: ['zh-HK'] }) // whitespace-normalized
     assert.equal(second.headers.get('x-cache'), 'HIT')
     assert.equal(azure.state.calls.length, 1)
-    assert.equal(budget.snapshot().dayChars, 5)
+    assert.equal(budget.snapshot().dayChars, 9, 'counted as Azure bills: 4 Chinese characters x2 + 1 space')
   })
 
   it('sends the key only to Azure and escapes text in SSML', async () => {
@@ -253,6 +253,16 @@ describe('units', () => {
     assert.equal(b.check('a', 10), 0)
     b.prune()
     assert.equal(b.windows.size, 0)
+  })
+
+  it('billableChars counts like Azure: CJK twice, <prosody> markup only when used', () => {
+    assert.equal(billableChars('hello'), 5)
+    assert.equal(billableChars('你好'), 4)
+    assert.equal(billableChars('こんにちは'), 10)
+    assert.equal(billableChars('a & b'), 9, 'escaped markup is billed')
+    assert.equal(ssmlBody('hi'), 'hi')
+    assert.equal(ssmlBody('hi', 1.2, 1), '<prosody rate="+20%" pitch="+0%">hi</prosody>')
+    assert.equal(billableChars('你好', 1.2, 1), ssmlBody('你好', 1.2, 1).length + 2)
   })
 
   it('SlidingWindow frees slots as they age out', () => {

@@ -1,6 +1,6 @@
 import { createServer } from 'node:http'
 import { AudioCache } from './cache.mjs'
-import { AzureError } from './azure.mjs'
+import { AzureError, billableChars } from './azure.mjs'
 import { KeyedCharBudget, SlidingWindow, WindowCounter } from './limits.mjs'
 
 const LOCALE = /^[a-z]{2,3}(-[A-Za-z0-9]{2,8}){0,2}$/
@@ -108,7 +108,8 @@ export function createApp({ config, azure, cache, budget, log = console }) {
     let pending = inflight.get(key)
     if (!pending) {
       pending = (async () => {
-        const chars = [...text].length
+        // Count what Azure bills (CJK twice, plus any <prosody> markup), not just the text length.
+        const chars = billableChars(text, rate, pitch)
         const ipWait = perIpChars.check(ip, chars)
         if (ipWait) throw new HttpError(429, 'personal_budget', "You've used today's share of the free voices; try again tomorrow", ipWait)
         const over = budget.check(chars)

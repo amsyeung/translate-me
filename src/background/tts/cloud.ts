@@ -105,9 +105,13 @@ export async function synthesizeAzure(text: string, lang: string, settings: Sett
   if (hit) return hit
 
   await ensurePermission(AZURE_ORIGIN(region))
+  // Azure bills markup inside <voice>, so only add <prosody> when it changes something.
+  const body =
+    settings.rate === 1 && settings.pitch === 1
+      ? xmlEscape(text)
+      : `<prosody rate="${percent(settings.rate)}" pitch="${percent(settings.pitch)}">${xmlEscape(text)}</prosody>`
   const ssml =
-    `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${locale}">` +
-    `<voice name="${voice}"><prosody rate="${percent(settings.rate)}" pitch="${percent(settings.pitch)}">${xmlEscape(text)}</prosody></voice></speak>`
+    `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${locale}">` + `<voice name="${voice}">${body}</voice></speak>`
   const res = await fetchOk(
     `https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`,
     {

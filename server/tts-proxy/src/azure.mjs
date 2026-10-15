@@ -90,7 +90,7 @@ export class AzureClient {
   async synthesize(text, voice, rate = 1, pitch = 1) {
     const ssml =
       `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${voice.locale}">` +
-      `<voice name="${voice.id}"><prosody rate="${percent(rate)}" pitch="${percent(pitch)}">${xmlEscape(text)}</prosody></voice></speak>`
+      `<voice name="${voice.id}">${ssmlBody(text, rate, pitch)}</voice></speak>`
     const res = await this.fetch(`${azureBase(this.config)}/cognitiveservices/v1`, {
       method: 'POST',
       headers: {
@@ -116,3 +116,24 @@ export class AzureError extends Error {
 
 export const xmlEscape = (s) => s.replace(/[<>&'"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' })[c])
 export const percent = (v) => `${v >= 1 ? '+' : ''}${Math.round((v - 1) * 100)}%`
+
+/** What goes inside <voice>. Azure bills this markup, so skip <prosody> when it changes nothing. */
+export function ssmlBody(text, rate = 1, pitch = 1) {
+  const escaped = xmlEscape(text)
+  if (rate === 1 && pitch === 1) return escaped
+  return `<prosody rate="${percent(rate)}" pitch="${percent(pitch)}">${escaped}</prosody>`
+}
+
+// Han characters (incl. Japanese kanji, Korean hanja) bill as two. Kana and Hangul are counted
+// as two as well, to stay on the safe side of the free quota.
+const DOUBLE = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u
+
+/**
+ * Characters as Azure bills them: everything inside <voice> (text and markup such as
+ * <prosody>), with CJK characters counted twice. <speak> and <voice> themselves are free.
+ */
+export function billableChars(text, rate = 1, pitch = 1) {
+  let n = 0
+  for (const ch of ssmlBody(text, rate, pitch)) n += DOUBLE.test(ch) ? 2 : 1
+  return n
+}
