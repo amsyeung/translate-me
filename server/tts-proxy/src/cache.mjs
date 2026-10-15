@@ -32,6 +32,7 @@ export class AudioCache {
     const file = this.path(key)
     try {
       const data = await readFile(file)
+      if (!data.length) return null // never serve an empty clip
       const now = new Date()
       utimes(file, now, now).catch(() => {}) // mark as recently used
       return data

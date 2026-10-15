@@ -119,6 +119,8 @@ export function createApp({ config, azure, cache, budget, log = console }) {
         const audio = await azure.synthesize(text, voice, rate, pitch)
         budget.spend(chars)
         perIpChars.spend(ip, chars)
+        // Azure answers 200 with no audio for text it can't speak; don't cache that, let the client fall back.
+        if (!audio.length) throw new HttpError(422, 'no_audio', 'The voice service returned no audio for this text')
         await cache.put(key, audio)
         return audio
       })().finally(() => inflight.delete(key))

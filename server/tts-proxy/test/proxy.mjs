@@ -23,7 +23,7 @@ const VOICES = [
 
 /** A stand-in for Azure: records calls and returns fake MP3 bytes. */
 function fakeAzure() {
-  const state = { calls: [], status: 200, keySeen: [] }
+  const state = { calls: [], status: 200, empty: false, keySeen: [] }
   const server = createServer((req, res) => {
     let body = ''
     req.on('data', (c) => (body += c))
@@ -39,7 +39,7 @@ function fakeAzure() {
         return res.end()
       }
       res.writeHead(200, { 'Content-Type': 'audio/mpeg' })
-      res.end(Buffer.from(`MP3:${body.length}`))
+      res.end(state.empty ? Buffer.alloc(0) : Buffer.from(`MP3:${body.length}`))
     })
   })
   return { server, state }
@@ -91,6 +91,7 @@ after(async () => {
 beforeEach(async () => {
   azure.state.calls = []
   azure.state.status = 200
+  azure.state.empty = false
   await startProxy()
 })
 
@@ -157,6 +158,17 @@ describe('synthesis', () => {
     assert.equal((await tts({ text: 'hi', locales: ['not a locale'] })).status, 400)
     assert.equal((await tts({ text: 'hi', locales: ['sw-KE'] })).status, 404)
     assert.equal(azure.state.calls.length, 0)
+  })
+
+  it("doesn't cache or serve empty audio, so the client can fall back", async () => {
+    azure.state.empty = true
+    const res = await tts({ text: '???', locales: ['en-US'] })
+    assert.equal(res.status, 422)
+    assert.equal((await res.json()).error, 'no_audio')
+    azure.state.empty = false
+    const retry = await tts({ text: '???', locales: ['en-US'] })
+    assert.equal(retry.status, 200)
+    assert.equal(retry.headers.get('x-cache'), 'MISS')
   })
 
   it('maps Azure failures without leaking details', async () => {
