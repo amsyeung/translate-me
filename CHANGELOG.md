@@ -4,6 +4,22 @@ See the GitHub Releases page for detailed changelogs: https://github.com/amsyeun
 
 
 
+## [1.2.0](https://github.com/amsyeung/translate-me/compare/v1.1.3...v1.2.0) (2026-10-15)
+
+### Features
+
+* **voice:** free natural voices through a shared Azure proxy ([b667a7c](https://github.com/amsyeung/translate-me/commit/b667a7cd83600699a24271c3eb5bf31818b76c14))
+* **voice:** Hong Kong and Macau time zones mean Cantonese for Traditional Chinese ([9180962](https://github.com/amsyeung/translate-me/commit/9180962c9cd1af0a5b860015c52ececb8a9e70ab))
+* **voice:** per-person daily limit and hand-picked default voices ([6fc280d](https://github.com/amsyeung/translate-me/commit/6fc280ddd3d18390cf77603ec295fa019263ffb6))
+
+### Bug Fixes
+
+* **options:** clear a stale shared-voice error once the voice list loads ([3123e23](https://github.com/amsyeung/translate-me/commit/3123e230d68e3d691c8d8afb4b23d4be9c05b21c))
+* **options:** say plainly that API keys never leave for anywhere but the provider ([438120b](https://github.com/amsyeung/translate-me/commit/438120bd4a760669bfdbb70a4d7a50fe1b37b324))
+* **tts-proxy:** never cache or serve empty audio ([f4f0088](https://github.com/amsyeung/translate-me/commit/f4f00883c5210963117f674412b0c3bc7e3ffa40))
+* **tts-proxy:** serve the public voice list without requiring Origin ([8527b30](https://github.com/amsyeung/translate-me/commit/8527b30e68609373bfc705a285b1f69b76676767))
+* **voice:** count characters the way Azure bills them ([423b67c](https://github.com/amsyeung/translate-me/commit/423b67ce4f5efdb439a5b7118c872a2d41e39a32))
+
 ## [1.1.3](https://github.com/amsyeung/translate-me/compare/v1.1.2...v1.1.3) (2026-10-12)
 
 ### Bug Fixes
