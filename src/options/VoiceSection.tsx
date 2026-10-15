@@ -138,7 +138,8 @@ export default function VoiceSection({ settings, update }: { settings: Settings;
     sendToBackground<{ ok: boolean; voices?: CloudVoice[]; error?: string }>({ type: 'list-cloud-voices', provider: 'shared', lang }).then((res) => {
       if (!alive) return
       setSharedVoices(res.ok && res.voices ? res.voices : [])
-      if (!res.ok) setStatus(res.error ?? 'Could not reach the voice server.')
+      // Replace any earlier message, including a stale error from a previous attempt.
+      setStatus(res.ok ? '' : (res.error ?? 'Could not reach the voice server.'))
     })
     return () => {
       alive = false
