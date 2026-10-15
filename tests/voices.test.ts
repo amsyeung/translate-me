@@ -22,7 +22,19 @@ describe('localesFor', () => {
     expect(localesFor('zh-Hant', ['zh-HK', 'en-US'])[0]).toBe('zh-HK')
   })
   it('keeps the default order otherwise (TW first)', () => {
-    expect(localesFor('zh-Hant', ['en-US'])[0]).toBe('zh-TW')
+    expect(localesFor('zh-Hant', ['en-US'], 'Europe/London')[0]).toBe('zh-TW')
+    expect(localesFor('zh-Hant', ['en-GB', 'zh-TW'], 'Asia/Taipei')[0]).toBe('zh-TW')
+  })
+  it('a Hong Kong or Macau time zone means Cantonese when the languages only say zh-TW', () => {
+    // Chrome's "Chinese (Traditional)" is zh-TW, which is what this real Hong Kong setup had.
+    const hkChrome = ['en-GB', 'en', 'en-US', 'zh-TW', 'zh', 'zh-CN', 'ja']
+    expect(localesFor('zh-Hant', hkChrome, 'Asia/Hong_Kong')[0]).toBe('zh-HK')
+    expect(localesFor('zh-Hant', hkChrome, 'Asia/Macau')[0]).toBe('zh-HK')
+    expect(localesFor('zh-Hant', hkChrome, 'Asia/Taipei')[0]).toBe('zh-TW')
+  })
+  it('the time zone never changes other languages', () => {
+    expect(localesFor('zh', ['en-GB'], 'Asia/Hong_Kong')[0]).toBe('zh-CN')
+    expect(localesFor('en', ['en-GB'], 'Asia/Hong_Kong')[0]).toBe('en-GB')
   })
 })
 

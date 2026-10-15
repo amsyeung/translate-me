@@ -4,6 +4,7 @@ import { loadSettings, onSettingsChanged, saveSettings } from '../core/settings'
 import { handleMenuClick, MENU_KEYS, rebuildMenus } from './menus'
 import { listAzureVoices, listElevenVoices } from './tts/cloud'
 import { speak, stopSpeaking } from './tts'
+import { listSharedVoices } from './tts/shared'
 
 let historyQueue: Promise<void> = Promise.resolve()
 
@@ -54,7 +55,12 @@ chrome.runtime.onMessage.addListener((msg: BackgroundRequest, _sender, sendRespo
       stopSpeaking().then(() => sendResponse({ ok: true }))
       return true
     case 'list-cloud-voices':
-      ;(msg.provider === 'azure' ? loadSettings().then((s) => listAzureVoices(s.azureRegion)) : listElevenVoices())
+      ;(msg.provider === 'shared'
+        ? listSharedVoices(msg.lang ?? 'en')
+        : msg.provider === 'azure'
+          ? loadSettings().then((s) => listAzureVoices(s.azureRegion))
+          : listElevenVoices()
+      )
         .then((voices) => sendResponse({ ok: true, voices }))
         .catch((err) => sendResponse({ ok: false, error: String(err?.message ?? err) }))
       return true

@@ -1,0 +1,14 @@
+{
+  "name": "translate-me-tts-proxy",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Shared Azure text-to-speech proxy for the translate me extension",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node src/server.mjs",
+    "test": "node --test \"test/*.mjs\""
+  }
+}

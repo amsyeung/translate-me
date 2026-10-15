@@ -1,0 +1,30 @@
+# docker compose up -d --build
+#
+# tts-proxy has no published ports: only cloudflared can reach it, and cloudflared
+# only makes outbound connections to Cloudflare, so no firewall ports need opening.
+services:
+  tts-proxy:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - tts-data:/data
+    mem_limit: 256m
+    logging:
+      driver: json-file
+      options:
+        max-size: 5m
+        max-file: '3'
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - tts-proxy
+    mem_limit: 128m
+
+volumes:
+  tts-data:
