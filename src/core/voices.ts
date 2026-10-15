@@ -12,14 +12,35 @@ const QUALITY_HINTS = /natural|neural|online|premium|enhanced|wavenet|studio/i
 const normLocale = (l: string) => l.replace(/_/g, '-').toLowerCase()
 
 /**
+ * Regions the clock can vouch for. Chrome's "Chinese (Traditional)" language is zh-TW, so
+ * many Hong Kong users never list zh-HK; their time zone still says where they are.
+ */
+const TIME_ZONE_LOCALES: Record<string, string> = {
+  'Asia/Hong_Kong': 'zh-HK',
+  'Asia/Macau': 'zh-HK',
+}
+
+function currentTimeZone(): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone ?? ''
+  } catch {
+    return ''
+  }
+}
+
+/**
  * Locales to look for, for a Translator-API language tag, most preferred first.
  * Locales the user actually has in their browser languages float to the front, so a
  * Hong Kong user gets a Cantonese (zh-HK) voice for Traditional Chinese while a
- * Taiwan user gets Mandarin (zh-TW), and en-GB users get a British voice.
+ * Taiwan user gets Mandarin (zh-TW), and en-GB users get a British voice. When the
+ * browser languages don't name the region, a Hong Kong or Macau time zone does.
+ * Read on this device only; nothing is sent anywhere.
  */
-export function localesFor(langTag: string, userLocales: readonly string[] = []): string[] {
+export function localesFor(langTag: string, userLocales: readonly string[] = [], timeZone = currentTimeZone()): string[] {
   const regions = findLanguage(langTag)?.regions ?? [langTag]
   const user = userLocales.map(normLocale)
+  const hinted = TIME_ZONE_LOCALES[timeZone]
+  if (hinted && !user.includes(normLocale(hinted))) user.unshift(normLocale(hinted))
   const rank = (r: string) => {
     const i = user.indexOf(normLocale(r))
     return i === -1 ? Number.MAX_SAFE_INTEGER : i
