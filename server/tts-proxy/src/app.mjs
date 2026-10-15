@@ -140,8 +140,23 @@ export function createApp({ config, azure, cache, budget, log = console }) {
       }
 
       if (url.pathname !== '/v1/tts' && url.pathname !== '/v1/voices') throw new HttpError(404, 'not_found', 'Not found')
+
+      // The voice list is public and costs no quota. An extension holding host permissions may
+      // send this GET without an Origin header, so don't require one here.
+      if (req.method === 'GET' && url.pathname === '/v1/voices') {
+        cors(req, res)
+        const locales = (url.searchParams.get('locales') ?? '').split(',').filter((l) => LOCALE.test(l))
+        const wanted = new Set(locales.map((l) => l.toLowerCase()))
+        const voices = (await azure.listVoices()).filter((v) => wanted.has(v.locale.toLowerCase()))
+        return sendJson(res, 200, { voices }, { 'Cache-Control': 'public, max-age=86400' })
+      }
+
       // Browsers enforce this; other clients can forge Origin, which is why the limits below exist too.
-      if (!cors(req, res)) throw new HttpError(403, 'origin', 'Origin not allowed')
+      if (!cors(req, res)) {
+        // An extension ID is not personal data; logging it makes a missing allow-list entry obvious.
+        log.warn?.(`reject 403 origin=${req.headers.origin ?? '(none)'} ${req.method} ${url.pathname}`)
+        throw new HttpError(403, 'origin', 'Origin not allowed')
+      }
 
       if (req.method === 'OPTIONS') {
         res.writeHead(204, {
@@ -150,13 +165,6 @@ export function createApp({ config, azure, cache, budget, log = console }) {
           'Access-Control-Max-Age': '86400',
         })
         return res.end()
-      }
-
-      if (req.method === 'GET' && url.pathname === '/v1/voices') {
-        const locales = (url.searchParams.get('locales') ?? '').split(',').filter((l) => LOCALE.test(l))
-        const wanted = new Set(locales.map((l) => l.toLowerCase()))
-        const voices = (await azure.listVoices()).filter((v) => wanted.has(v.locale.toLowerCase()))
-        return sendJson(res, 200, { voices }, { 'Cache-Control': 'public, max-age=86400' })
       }
 
       if (req.method !== 'POST' || url.pathname !== '/v1/tts') throw new HttpError(405, 'method', 'Method not allowed')

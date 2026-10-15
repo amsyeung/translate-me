@@ -104,6 +104,15 @@ describe('origin checks', () => {
     assert.equal(azure.state.calls.length, 0)
   })
 
+  it('serves the public voice list even without an Origin header', async () => {
+    const res = await fetch(`${base}/v1/voices?locales=zh-HK`)
+    assert.equal(res.status, 200)
+    assert.deepEqual((await res.json()).voices.map((v) => v.id), ['zh-HK-HiuMaanNeural', 'zh-HK-WanLungNeural'])
+    assert.equal(res.headers.get('access-control-allow-origin'), null)
+    const fromExtension = await fetch(`${base}/v1/voices?locales=zh-HK`, { headers: { Origin: ORIGIN } })
+    assert.equal(fromExtension.headers.get('access-control-allow-origin'), ORIGIN)
+  })
+
   it('answers the CORS preflight for the extension', async () => {
     const res = await fetch(`${base}/v1/tts`, { method: 'OPTIONS', headers: { Origin: ORIGIN } })
     assert.equal(res.status, 204)
