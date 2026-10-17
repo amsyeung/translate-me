@@ -31,18 +31,18 @@ jobs:
       version: ${{ steps.bump.outputs.version }}
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: main
           fetch-depth: 0
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
         with:
           version: 10
 
       - name: Setup Node.js v24 LTS
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
@@ -77,17 +77,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the release tag
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: v${{ needs.release.outputs.version }}
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
         with:
           version: 10
 
       - name: Setup Node.js v24 LTS
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
@@ -99,7 +99,7 @@ jobs:
           cd dist && zip -qr ../translate-me-v${{ needs.release.outputs.version }}.zip .
 
       - name: Create GitHub release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: v${{ needs.release.outputs.version }}
           name: Release v${{ needs.release.outputs.version }}

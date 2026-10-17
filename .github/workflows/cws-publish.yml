@@ -58,18 +58,18 @@ jobs:
           fi
 
       - name: Checkout source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ inputs.ref }}
 
       - name: Setup pnpm
         if: inputs.mode != 'status'
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
         with:
           version: 10
 
       - name: Setup Node.js v24 LTS
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: ${{ inputs.mode != 'status' && 'pnpm' || '' }}
