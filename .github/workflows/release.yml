@@ -25,17 +25,17 @@ jobs:
       TARGET: ${{ github.event.inputs.target_ref || github.ref_name }}
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ env.TARGET }}
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
         with:
           version: 10
 
       - name: Setup Node.js v24 LTS
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
@@ -52,7 +52,7 @@ jobs:
           zip -qr "../translate-me-$TARGET.zip" .
 
       - name: Create GitHub Release & Upload zip asset
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ env.TARGET }}
           files: translate-me-${{ env.TARGET }}.zip
