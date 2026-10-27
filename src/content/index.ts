@@ -4,9 +4,11 @@ import { languageName, normalizeLanguageTag, preferredLanguages } from '../core/
 import { requestSpeak, sendToBackground, type ContentRequest } from '../core/messages'
 import { DEFAULT_SETTINGS, isSiteDisabled, loadSettings, onSettingsChanged, setTargetLanguage, type Settings } from '../core/settings'
 import { translate, TranslateError } from '../core/translate'
+import { writingAvailability } from '../core/writer'
 import { copyToClipboard } from '../util/util'
 import { PageTranslator } from './pageTranslate'
 import { PopoverUI, type Anchor, type PopoverView } from './popover'
+import { WritingTools } from './writing'
 
 interface Session {
   id: number
@@ -29,10 +31,20 @@ function init() {
   let session: Session | null = null
   let seq = 0
 
-  loadSettings().then((s) => (settings = s))
+  // Writing tools only show up once the on-device model is ready; downloading it is the user's choice in Settings.
+  let writerReady = false
+  const refreshWriter = async () => {
+    writerReady = settings.writingTools && (await writingAvailability('en')) === 'available'
+  }
+
+  loadSettings().then((s) => {
+    settings = s
+    refreshWriter()
+  })
   onSettingsChanged((patch) => {
     settings = { ...settings, ...patch }
     if (!highlightActive() && session && !session.explicit) closeSession()
+    if ('writingTools' in patch) refreshWriter()
   })
 
   const alive = () => Boolean(chrome.runtime?.id) // false once the extension is reloaded/updated
@@ -60,6 +72,7 @@ function init() {
     onAction: () => session && run(session),
   })
   const pageTranslator = new PageTranslator(ui)
+  const writing = new WritingTools({ hints: () => hints() })
 
   function highlightActive() {
     return settings.highlightEnabled && !isSiteDisabled(settings, location.hostname)
@@ -213,13 +226,16 @@ function init() {
   window.addEventListener(
     'mouseup',
     (e) => {
-      if (e.button !== 0 || ui.contains(e) || !alive()) return
+      if (e.button !== 0 || ui.contains(e) || writing.contains(e) || !alive()) return
       // Let the browser finish updating the selection (double/triple click) first.
       setTimeout(() => {
+        const inEditable = selectionInEditable()
+        // Text the user is writing gets the writing tools button (proofread / rewrite).
+        if (inEditable && writerReady && !writing.isOpen) writing.offer({ x: e.clientX, y: e.clientY })
         if (!highlightActive()) return
         const picked = readSelection()
         if (!picked || !/\p{L}/u.test(picked.text)) return
-        if (settings.skipEditable && selectionInEditable()) return
+        if (settings.skipEditable && inEditable) return
         if (session && ui.isOpen && session.text === picked.text) return
 
         if (settings.triggerMode === 'auto') start(picked.text, picked.anchor, { explicit: false })
@@ -236,6 +252,10 @@ function init() {
   window.addEventListener(
     'pointerdown',
     (e) => {
+      if (!writing.contains(e)) {
+        writing.hideTrigger()
+        if (writing.isOpen) writing.close()
+      }
       if (ui.contains(e)) return
       ui.hideIcon()
       if (ui.isOpen && !ui.isSticky) closeSession()
@@ -247,13 +267,20 @@ function init() {
     'keydown',
     (e) => {
       if (e.key !== 'Escape') return
+      if (writing.isTriggerVisible) writing.hideTrigger()
+      if (writing.isOpen) writing.close()
       if (ui.isIconVisible) ui.hideIcon()
       if (ui.isOpen) closeSession()
     },
     true
   )
 
+  // Typing again makes the offered selection stale.
+  window.addEventListener('input', (e) => !writing.contains(e) && writing.hideTrigger(), true)
+
   const follow = () => {
+    writing.hideTrigger()
+    writing.reposition()
     ui.hideIcon()
     if (ui.isOpen) ui.follow(closeSession)
   }
@@ -271,6 +298,12 @@ function init() {
       if (msg.focusedOnly && !document.hasFocus()) return
       const picked = readSelection()
       if (picked) start(picked.text, picked.anchor, { explicit: true, tgtLang: msg.tgtLang })
+      return
+    }
+    if (msg.type === 'writing-tools') {
+      // Context menu / shortcut: the selection, or the whole focused field if nothing is selected.
+      if (msg.focusedOnly && !document.hasFocus()) return
+      writing.openForFocusedField()
       return
     }
     if (msg.type === 'translate-page' && window === window.top) {

@@ -56,6 +56,13 @@
         "mac": "Alt+Shift+H"
       },
       "description": "Turn highlight-to-translate on or off"
+    },
+    "improve-writing": {
+      "suggested_key": {
+        "default": "Alt+Shift+W",
+        "mac": "Alt+Shift+W"
+      },
+      "description": "Proofread or rewrite the text you're writing"
     }
   },
   "options_ui": {

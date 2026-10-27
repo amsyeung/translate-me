@@ -51,8 +51,38 @@ export interface LanguageDetectorStatic {
   create(options?: { expectedInputLanguages?: string[] } & CreateOptions): Promise<LanguageDetectorInstance>
 }
 
+/** Prompt API (Gemini Nano). https://developer.chrome.com/docs/ai/prompt-api */
+export interface LanguageModelExpected {
+  type: 'text'
+  languages?: string[]
+}
+
+export interface LanguageModelPrompt {
+  role: 'system' | 'user' | 'assistant'
+  content: string
+}
+
+export interface LanguageModelOptions extends CreateOptions {
+  initialPrompts?: LanguageModelPrompt[]
+  expectedInputs?: LanguageModelExpected[]
+  expectedOutputs?: LanguageModelExpected[]
+}
+
+export interface LanguageModelSession {
+  /** `responseConstraint` is a JSON Schema the reply must match. */
+  prompt(input: string, options?: { signal?: AbortSignal; responseConstraint?: object }): Promise<string>
+  clone(options?: { signal?: AbortSignal }): Promise<LanguageModelSession>
+  destroy(): void
+}
+
+export interface LanguageModelStatic {
+  availability(options?: Pick<LanguageModelOptions, 'expectedInputs' | 'expectedOutputs'>): Promise<AIAvailability>
+  create(options?: LanguageModelOptions): Promise<LanguageModelSession>
+}
+
 declare global {
   // Only present on Chrome desktop 138+; always feature-detect before use.
   var Translator: TranslatorStatic | undefined
   var LanguageDetector: LanguageDetectorStatic | undefined
+  var LanguageModel: LanguageModelStatic | undefined
 }

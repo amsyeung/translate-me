@@ -39,6 +39,11 @@ chrome.commands.onCommand.addListener(async (command, tab) => {
     await saveSettings({ highlightEnabled: !highlightEnabled })
     return
   }
+  if (command === 'improve-writing' && tab?.id) {
+    const msg: ContentRequest = { type: 'writing-tools', focusedOnly: true }
+    chrome.tabs.sendMessage(tab.id, msg).catch(() => {})
+    return
+  }
   if (command === 'translate-selection' && tab?.id) {
     const msg: ContentRequest = { type: 'translate-selection', focusedOnly: true }
     // Every frame gets it; only the one holding a selection responds.

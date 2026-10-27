@@ -29,6 +29,8 @@ export interface Settings {
   disabledSites: string[]
   /** Keep a local list of popover translations (for review / export). */
   saveHistory: boolean
+  /** Offer proofread / rewrite for text typed in fields (needs Chrome's on-device model). */
+  writingTools: boolean
 
   pitch: number
   rate: number
@@ -61,6 +63,7 @@ export const DEFAULT_SETTINGS: Settings = {
   skipEditable: true,
   disabledSites: [],
   saveHistory: true,
+  writingTools: true,
 
   pitch: 1,
   rate: 1,

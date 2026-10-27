@@ -18,6 +18,7 @@ export type SpeakResponse =
 export type ContentRequest =
   | { type: 'translate-selection'; tgtLang?: string; focusedOnly?: boolean }
   | { type: 'translate-page'; tgtLang?: string }
+  | { type: 'writing-tools'; focusedOnly?: boolean }
   | { type: 'ping' }
 
 /** Background → offscreen document. */
