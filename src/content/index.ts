@@ -33,6 +33,8 @@ function init() {
   let settings: Settings = DEFAULT_SETTINGS
   let session: Session | null = null
   let seq = 0
+  // Selecting text that's already in the target language normally shows nothing; explain it once per page.
+  let sameLanguageHintShown = false
 
   // Writing tools only show up once the on-device model is ready; downloading it is the user's choice in Settings.
   let writerReady = false
@@ -139,7 +141,13 @@ function init() {
         // Bilingual pair: text already in the main target goes the other way.
         if (settings.pairLang && settings.pairLang !== src) tgt = settings.pairLang
         else if (settings.wordMeaning && isWordLike(s.text, src) && (await dictionaryReady(src))) meaningOnly = true
-        else return fail(s, `This is already ${languageName(src)}. Choose another target language above.`)
+        else {
+          const message = `This is already ${languageName(src)}. Choose a language above to translate it into.`
+          if (s.explicit || ui.isOpen) return fail(s, message)
+          if (sameLanguageHintShown) return closeSession()
+          sameLanguageHintShown = true
+          return render(s, { status: 'error', message, translated: '' })
+        }
         if (!current()) return
       }
 
