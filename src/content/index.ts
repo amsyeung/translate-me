@@ -149,10 +149,17 @@ function init() {
 
       // A single word also gets its meaning from the on-device model, under the translation.
       let meaning: { partOfSpeech?: string; definition?: string; example?: string } = {}
-      if (settings.wordMeaning && isWordLike(s.text, src) && (await dictionaryReady(src))) {
+      const wordLike = settings.wordMeaning && isWordLike(s.text, src)
+      const ready = wordLike && (await dictionaryReady(src))
+      if (wordLike && !ready) console.debug('[translate-me] Word meaning skipped: on-device model not ready for', src)
+      if (ready) {
         if (!current()) return
         render(s, { word: { status: 'loading' } })
-        const info = await lookupWord(s.text, src, { context: s.context, signal }).catch(() => null)
+        const info = await lookupWord(s.text, src, { context: s.context, signal }).catch((err) => {
+          if ((err as Error)?.name !== 'AbortError') console.warn('[translate-me] Word meaning failed', err)
+          return null
+        })
+        if (!info && current()) console.warn('[translate-me] Word meaning: the model gave no usable answer for', s.text)
         if (!current()) return
         if (info) {
           const sameLanguage = src.split('-')[0] === tgt.split('-')[0]

@@ -19,7 +19,10 @@ export function useWordMeaning(text: string, sourceLang: string | null, tgtLang:
     const timer = setTimeout(async () => {
       if (!(await dictionaryReady(sourceLang)) || signal.aborted) return
       setMeaning({ key, value: { status: 'loading' } })
-      const info = await lookupWord(word, sourceLang, { signal }).catch(() => null)
+      const info = await lookupWord(word, sourceLang, { signal }).catch((err) => {
+        if ((err as Error)?.name !== 'AbortError') console.warn('[translate-me] Word meaning failed', err)
+        return null
+      })
       if (signal.aborted) return
       if (!info) return setMeaning(null)
       const sameLanguage = sourceLang.split('-')[0] === tgtLang.split('-')[0]
