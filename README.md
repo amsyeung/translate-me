@@ -36,11 +36,11 @@ Select text and the translation appears beside it. From the card you can:
 
 | When to show it | Best for |
 | --- | --- |
+| **After I click a translate button** (default) | Occasional look-ups, without interruptions |
 | **As soon as I select text** | Reading in a foreign language |
-| **After I click a translate button** | Occasional look-ups, without interruptions |
 | **Only when I hold Alt (⌥ on Mac)** | Pages where you select text a lot, like docs and editors |
 
-You can turn it off for one site, or everywhere, from the toolbar popup. Selections inside text boxes are ignored by default.
+By default a small button appears next to your selection and the card opens when you click it; switch to *As soon as I select text* in the toolbar popup if you'd rather skip the click. You can turn it off for one site, or everywhere, from the same popup. Selections inside text boxes are ignored by default.
 
 **Bilingual pair:** set a second language, and text that's already in your target language is translated into it instead. For example, English pages become Chinese and Chinese pages become English.
 

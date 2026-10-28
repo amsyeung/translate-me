@@ -62,7 +62,7 @@ export const DEFAULT_SETTINGS: Settings = {
   recentLangs: [],
 
   highlightEnabled: true,
-  triggerMode: 'auto',
+  triggerMode: 'icon',
   autoHideSeconds: 0,
   skipEditable: true,
   disabledSites: [],
