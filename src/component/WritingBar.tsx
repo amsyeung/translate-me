@@ -56,7 +56,6 @@ export default function WritingBar({ text, lang, enabled, onUse }: { text: strin
   return (
     <div className="flex flex-col gap-2 px-3 pb-2">
       <div className="flex flex-wrap items-center gap-1" role="group" aria-label="Writing tools">
-        <span className="text-[11px] text-zinc-400 mr-1">✍️</span>
         {WRITING_MODES.map((m) => (
           <button
             key={m.id}
