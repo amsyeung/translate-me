@@ -18,13 +18,24 @@ export interface WordInfo {
 /** Languages Gemini Nano can explain words in (it writes the definition in the same language). */
 export const DICTIONARY_LANGUAGES = WRITING_LANGUAGES
 
-/** A single word or a short phrase ("run out of"), not a sentence. */
+// Short English sentences look like phrases by length ("How are you", "I like it"): a question
+// word or auxiliary up front, or a personal pronoun anywhere, marks them as sentences.
+const EN_SENTENCE_START = /^(how|what|why|where|when|who|which|whose|is|are|am|was|were|do|does|did|can|could|will|would|shall|should|may|might|have|has|had)$/
+const EN_PRONOUN = /^(i|you|he|she|we|they|it|me|him|her|us|them|i'm|you're|it's|that's|let's)$/
+
+/** A single word or a short phrase ("run out of", "break the ice"), not a sentence. */
 export function isWordLike(text: string, lang: string): boolean {
   const t = text.trim()
   if (!t || t.length > 40 || /[.!?。！？\n]/.test(t)) return false
   // Japanese has no spaces between words: judge by length instead.
   if (lang.startsWith('ja')) return t.length <= 12
-  return t.split(/\s+/).length <= 3 && /\p{L}/u.test(t)
+  const words = t.split(/\s+/)
+  if (words.length > 3 || !/\p{L}/u.test(t)) return false
+  if (words.length > 1 && lang.startsWith('en')) {
+    const lower = words.map((w) => w.toLowerCase().replace(/[^a-z']/g, ''))
+    if (EN_SENTENCE_START.test(lower[0]) || lower.some((w) => EN_PRONOUN.test(w))) return false
+  }
+  return true
 }
 
 /**
@@ -46,7 +57,7 @@ export function sentenceAround(text: string, word: string, at = text.indexOf(wor
 const SYSTEM_PROMPT = [
   "You are a learner's dictionary.",
   'You get a word or short phrase and, when available, the sentence it was found in.',
-  'Give its part of speech; the meaning it has in that sentence in one to three simple words (for example "riverbank" for bank by a river); a short plain definition (at most 15 words) of that meaning; and one short, natural example sentence that uses it.',
+  'Give its part of speech; its meaning in that sentence as one to three common words of the same part of speech, like a synonym a dictionary would list (for example "riverbank" for bank by a river, "penalty" for fine as money you must pay); a short plain definition (at most 15 words) of that meaning; and one short, natural example sentence that uses it.',
   'Write everything in the same language as the word. Do not translate, do not add notes.',
   'If the input is a name or not a real word, give your best short description.',
 ].join(' ')
@@ -60,6 +71,16 @@ const EXAMPLES: { word: string; context: string; info: WordInfo }[] = [
     word: 'bank',
     context: 'We had a picnic on the bank of the river.',
     info: { partOfSpeech: 'noun', sense: 'riverbank', definition: 'the land along the side of a river', example: 'They sat on the river bank and watched the boats.' },
+  },
+  {
+    word: 'fine',
+    context: 'He had to pay a fine for parking there.',
+    info: { partOfSpeech: 'noun', sense: 'penalty', definition: 'money you must pay for breaking a rule', example: 'The library charges a small fine for late books.' },
+  },
+  {
+    word: 'universal',
+    context: 'Music is a universal language.',
+    info: { partOfSpeech: 'adjective', sense: 'worldwide', definition: 'shared by or true for everyone everywhere', example: 'Smiling is a universal sign of friendliness.' },
   },
   {
     word: 'serendipity',

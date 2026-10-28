@@ -8,6 +8,15 @@ describe('isWordLike', () => {
     expect(isWordLike('  bank ', 'en')).toBe(true)
     expect(isWordLike('猫', 'ja')).toBe(true)
   })
+  it('treats short English sentences as sentences, not phrases', () => {
+    expect(isWordLike('How are you', 'en')).toBe(false)
+    expect(isWordLike('I like it', 'en')).toBe(false)
+    expect(isWordLike('thank you', 'en')).toBe(false)
+    expect(isWordLike('Are they here', 'en')).toBe(false)
+    expect(isWordLike('break the ice', 'en')).toBe(true)
+    expect(isWordLike('look forward to', 'en')).toBe(true)
+    expect(isWordLike('how', 'en')).toBe(true)
+  })
   it('rejects sentences, long phrases and non-words', () => {
     expect(isWordLike('I went to the bank.', 'en')).toBe(false)
     expect(isWordLike('one two three four', 'en')).toBe(false)
