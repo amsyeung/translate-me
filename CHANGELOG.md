@@ -4,6 +4,12 @@ See the GitHub Releases page for detailed changelogs: https://github.com/amsyeun
 
 
 
+## [1.3.0](https://github.com/amsyeung/translate-me/compare/v1.2.0...v1.3.0) (2026-10-28)
+
+### Features
+
+* on-device writing tools and word meanings (v1.3.0) ([#17](https://github.com/amsyeung/translate-me/issues/17)) ([318107f](https://github.com/amsyeung/translate-me/commit/318107f111df53a19fb5fea539f471d2dda03cc7))
+
 ## [1.2.0](https://github.com/amsyeung/translate-me/compare/v1.1.3...v1.2.0) (2026-10-15)
 
 ### Features
