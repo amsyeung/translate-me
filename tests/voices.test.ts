@@ -90,6 +90,6 @@ describe('misc', () => {
   })
   it('historyToCsv escapes quotes and newlines', () => {
     const csv = historyToCsv([{ text: 'say "hi"', translated: 'line1\nline2', src: 'en', tgt: 'ja', site: 'x.com', at: 0 }])
-    expect(csv.split('\r\n')[1]).toBe('"say ""hi""","line1\nline2","en","ja","x.com","1970-01-01T00:00:00.000Z"')
+    expect(csv.split('\r\n')[1]).toBe('"say ""hi""","line1\nline2","en","ja","x.com","1970-01-01T00:00:00.000Z","","",""')
   })
 })

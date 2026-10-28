@@ -6,6 +6,7 @@ const PAGE_BUILTIN = 'translate-page'
 const PAGE_GOOGLE = 'translate-page-google'
 const SELECTION_PARENT = 'translate-selection'
 const SELECTION_PREFIX = 'translate-selection:'
+const WRITING = 'improve-writing'
 
 let rebuilding: Promise<void> = Promise.resolve()
 
@@ -25,6 +26,7 @@ export function rebuildMenus(): Promise<void> {
     for (const lang of selectionTargets(settings)) {
       chrome.contextMenus.create({ id: SELECTION_PREFIX + lang, parentId: SELECTION_PARENT, title: languageName(lang), contexts: ['selection'] })
     }
+    if (settings.writingTools) chrome.contextMenus.create({ id: WRITING, title: 'Improve writing', contexts: ['editable'] })
   })
   rebuilding.catch((err) => console.error('[translate-me] Failed to build context menus', err))
   return rebuilding
@@ -49,6 +51,10 @@ export async function handleMenuClick(info: chrome.contextMenus.OnClickData, tab
     await chrome.tabs.create({ url, index: tab.index + 1 })
     return
   }
+  if (id === WRITING) {
+    await sendToTab(tab.id, { type: 'writing-tools' }, info.frameId)
+    return
+  }
   if (id === PAGE_BUILTIN) {
     await sendToTab(tab.id, { type: 'translate-page', tgtLang: settings.tgtLang }, 0)
     return
@@ -61,4 +67,4 @@ export async function handleMenuClick(info: chrome.contextMenus.OnClickData, tab
 }
 
 /** Menus depend on these settings. */
-export const MENU_KEYS: (keyof Settings)[] = ['tgtLang', 'pairLang', 'recentLangs']
+export const MENU_KEYS: (keyof Settings)[] = ['tgtLang', 'pairLang', 'recentLangs', 'writingTools']

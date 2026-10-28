@@ -77,6 +77,12 @@ option { color: #1f1f1f; background: #fff; }
 .status { color: var(--muted); font-size: 13px; }
 .status.warn { color: var(--warn); }
 button.action { margin-top: 8px; padding: 0 10px; border: 1px solid var(--border); color: var(--accent); font-weight: 600; }
+.dict { margin-top: 8px; padding-top: 6px; border-top: 1px solid var(--border); font-size: 13.5px; white-space: normal; }
+.dict .pos { font-style: italic; color: var(--muted); margin-right: 6px; }
+.dict .sense { font-weight: 600; }
+.dict .def-src { color: var(--muted); font-size: 12.5px; }
+.dict .example { color: var(--muted); font-size: 12.5px; font-style: italic; margin-top: 3px; }
+.dict .example::before { content: "e.g. "; font-style: normal; }
 .bar { height: 3px; margin-top: 6px; border-radius: 2px; background: var(--border); overflow: hidden; }
 .bar > i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .2s; }
 
@@ -150,4 +156,31 @@ export const ICONS = {
   pin: svg('<path d="M9 4h6l-1 6 4 4H6l4-4z"/><path d="M12 14v6"/>'),
   close: svg('<path d="M6 6l12 12M18 6 6 18"/>'),
   translate: svg('<path d="M4 5h9M8.5 3v2M6 5c1 3.5 3.5 6 6 7.5M11 5c-1 3.5-3.5 6.5-7 8"/><path d="m13 21 4-9 4 9M14.5 18h5"/>'),
+  pen: svg('<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/><path d="M15 20h5"/>'),
 }
+
+/** Extra styles for the writing tools card (on top of POPOVER_CSS). */
+export const WRITER_CSS = `
+.writer { min-width: 300px; max-width: min(480px, calc(100vw - 16px)); }
+.tabs { display: flex; gap: 2px; flex-wrap: wrap; }
+.tabs button { height: 24px; padding: 0 8px; font-size: 12px; border-radius: 999px; }
+.tabs button[aria-selected="true"] { background: var(--accent); color: #fff; }
+.diff ins { text-decoration: none; background: rgba(34,197,94,.22); border-radius: 3px; }
+.diff del { color: var(--muted); text-decoration: line-through; text-decoration-color: rgba(239,68,68,.8); }
+.note { color: var(--muted); font-size: 12px; margin-top: 6px; }
+button.primary { background: var(--accent); color: #fff; padding: 0 12px; font-weight: 600; }
+button.primary:hover { background: var(--accent); color: #fff; filter: brightness(1.08); }
+.field-badge {
+  position: fixed;
+  width: 24px; height: 24px; min-width: 24px; padding: 0;
+  border-radius: 50%;
+  background: var(--bg);
+  color: var(--accent);
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(0,0,0,.15);
+  opacity: .75;
+  pointer-events: auto;
+}
+.field-badge:hover { opacity: 1; background: var(--hover); }
+.field-badge svg { width: 14px; height: 14px; }
+`

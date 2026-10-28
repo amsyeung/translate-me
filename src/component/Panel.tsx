@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from '../hooks/useTranslation'
+import { useWordMeaning } from '../hooks/useWordMeaning'
 import { useSettings } from '../hooks/useSettings'
 import { isTranslatorSupported } from '../core/translate'
 import { setTargetLanguage } from '../core/settings'
@@ -7,6 +8,7 @@ import SourcePanel from './SourcePanel'
 import TargetPanel from './TargetPanel'
 import Divider from './Divider'
 import HighlightBar from './HighlightBar'
+import WritingBar from './WritingBar'
 
 // sidepanel.html is the same app with this class on <body>.
 const isSidePanel = document.body.classList.contains('side-panel')
@@ -27,6 +29,7 @@ export default function Panel() {
   }
 
   const state = useTranslation(sourceText, srcLang, tgtLang)
+  const word = useWordMeaning(sourceText, srcLang || state.sourceLang, tgtLang, loaded && settings.wordMeaning)
   const canSwap = state.status === 'done' && Boolean(state.translated) && Boolean(state.sourceLang)
 
   const chooseTarget = (lang: string) => {
@@ -86,8 +89,9 @@ export default function Panel() {
       <HighlightBar settings={settings} update={update} />
 
       <SourcePanel language={srcLang} onLanguageChange={setSrcLang} text={sourceText} onTextChange={setSourceText} state={state} />
+      <WritingBar text={sourceText} lang={srcLang || state.detection?.language || null} enabled={settings.writingTools} onUse={setSourceText} />
       <Divider onClickAction={swap} allowToggle={canSwap} withButton={true} />
-      <TargetPanel language={tgtLang} onLanguageChange={chooseTarget} recentLangs={settings.recentLangs} state={state} />
+      <TargetPanel language={tgtLang} onLanguageChange={chooseTarget} recentLangs={settings.recentLangs} state={state} word={word} />
     </>
   )
 }

@@ -18,7 +18,8 @@
 ## Why translate me?
 
 - **Free and private.** Translation runs on your computer with Chrome's built-in model. There's no account, no API key, and your text is never sent to a server.
-- **Stays out of your way.** The translation card sits next to what you selected without covering it. You can have it appear instantly, behind a small button, or only while you hold <kbd>Alt</kbd>.
+- **Stays out of your way.** The translation card sits next to what you selected without covering it. By default it waits behind a small button; it can also appear instantly, or only while you hold <kbd>Alt</kbd>.
+- **Helps you write, too.** Proofread or rewrite what you type, and look up what a word means in its sentence, with Chrome's on-device AI.
 - **Gets the language right.** Japanese, Korean, Thai, and Traditional vs Simplified Chinese are recognised from their writing system. Short or ambiguous text uses the page's language and yours as hints.
 - **39 languages**, including Chinese (Traditional), Japanese, Korean, Vietnamese and Ukrainian.
 
@@ -36,11 +37,11 @@ Select text and the translation appears beside it. From the card you can:
 
 | When to show it | Best for |
 | --- | --- |
+| **After I click a translate button** (default) | Occasional look-ups, without interruptions |
 | **As soon as I select text** | Reading in a foreign language |
-| **After I click a translate button** | Occasional look-ups, without interruptions |
 | **Only when I hold Alt (⌥ on Mac)** | Pages where you select text a lot, like docs and editors |
 
-You can turn it off for one site, or everywhere, from the toolbar popup. Selections inside text boxes are ignored by default.
+By default a small button appears next to your selection and the card opens when you click it; switch to *As soon as I select text* in the toolbar popup if you'd rather skip the click. You can turn it off for one site, or everywhere, from the same popup. Selections inside text boxes are ignored by default.
 
 **Bilingual pair:** set a second language, and text that's already in your target language is translated into it instead. For example, English pages become Chinese and Chinese pages become English.
 
@@ -60,6 +61,23 @@ The **Translate on select** line shows whether highlight-to-translate is on. Cli
 
 <br clear="right">
 
+### Writing tools
+
+Proofread an email or a message before you send it, or rewrite it to sound **Friendly**, **Professional** or **Concise**. Proofread shows each change in place, so you can see what was fixed. Click **Replace** to put the suggestion into the text box (<kbd>Ctrl</kbd>+<kbd>Z</kbd> undoes it) or **Copy** to use it elsewhere.
+
+Open the writing tools from:
+
+- the small pen in the corner of a text box, once you've typed a few words;
+- the pen button next to text you select inside a text box;
+- right-click → **translate me → Improve writing**, or <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd>;
+- the toolbar popup, under the text you typed (**Use** puts the suggestion back in the box).
+
+They work in English, Japanese and Spanish, and run on your computer with Gemini Nano, the AI model built into Chrome. Turn on the model, or turn off the pen in text boxes, in *Settings → On-device AI*.
+
+### Word meanings
+
+Select a single word or a short phrase, like *bank* or *run out of*, and the card adds what it means **in that sentence**: the part of speech, a one-word sense, a short definition and an example. A word that's already in your language gets an explanation instead of a translation. This also works in the popup, and uses the same on-device model (English, Japanese and Spanish words).
+
 ### Voices
 
 Every 🔊 button picks the best voice installed on your computer for that language and region. For example, a Hong Kong user hears Cantonese for Traditional Chinese, and a Taiwan user hears Mandarin. You can choose a different voice per language in Settings.
@@ -68,7 +86,7 @@ For more natural voices, switch to **translate me natural voices** in *Settings 
 
 ### History
 
-Text you translate with the card is kept on your computer. Export it as CSV from Settings; it imports straight into Anki.
+Text you translate with the card is kept on your computer, together with a word's meaning and example. Export it as CSV from Settings; it imports straight into Anki.
 
 <details>
 <summary><strong>Settings</strong> (screenshot)</summary>
@@ -81,12 +99,13 @@ Text you translate with the card is kept on your computer. Export it as CSV from
 
 1. [Install from the Chrome Web Store](https://chromewebstore.google.com/detail/translate-me/fkoepnkpnaebnedkdnljkcdchljfoadi). You need **desktop Chrome 138 or newer** on Windows, macOS, Linux or ChromeOS.
 2. Reload any tabs that were already open.
-3. Select some text. The first time you use a language pair, Chrome downloads its model once. If the card shows a **Download** button, click it to start.
+3. Select some text and click the small button next to it. The first time you use a language pair, Chrome downloads its model once. If the card shows a **Download** button, click it to start.
 
 | Shortcut | Action |
 | --- | --- |
 | <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd> | Translate the selected text |
 | <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd> | Turn highlight-to-translate on or off |
+| <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd> | Open the writing tools for the text box you're typing in |
 | <kbd>Esc</kbd> | Close the translation card |
 
 Change shortcuts at `chrome://extensions/shortcuts`. If another app already uses a shortcut, Chrome leaves it unset.
@@ -103,10 +122,12 @@ This is the list Chrome's built-in translator supports.
 <summary><strong>Troubleshooting</strong></summary>
 
 - **Nothing happens when I select text.**
-  - Check the *Translate on select* line in the popup: it may be off, set to *button* or *Alt* mode, or turned off for this site.
+  - By default a small translate button appears first: click it. To skip the click, choose *As soon as I select text* in the popup.
+  - Check the *Translate on select* line in the popup: it may be off, set to *Alt* mode, or turned off for this site.
   - Tabs opened before installing or updating need a reload.
   - Chrome doesn't let extensions run on `chrome://` pages, the Web Store or the built-in PDF viewer.
 - **"Chrome's built-in translator isn't available."** You need desktop Chrome 138+. The built-in AI isn't available on mobile.
+- **No writing tools or word meanings.** Open *Settings → On-device AI*. If the model isn't downloaded yet, click **Download**; if your computer can't run it, that line says so. Both work for English, Japanese and Spanish text.
 - **"This embedded frame doesn't allow Chrome's translator."** Some sites embed content from another site in a frame that blocks the translator. Open that content in its own tab.
 - **The voice sounds robotic, or is the wrong accent.**
   - Pick a different voice in *Settings → Voice*.
@@ -117,6 +138,7 @@ This is the list Chrome's built-in translator supports.
 ## Privacy
 
 - **On-device translation.** Text is translated, and its language detected, by Chrome's built-in models on your computer. It isn't sent anywhere.
+- **On-device writing tools and word meanings.** Text you proofread or rewrite, and words you look up, are handled by Gemini Nano on your computer. Chrome downloads the model only when you click **Download** in Settings.
 - **No personal data.** No analytics, and no IP addresses, browsing history or identifiers are collected.
 - **Your data stays local.** Settings sync through your Chrome profile. Translation history and API keys stay on this device and are removed with the extension.
 - **Optional natural voices.** Only if you turn on *translate me natural voices*: the text you choose to listen to is sent to the translate me voice server and Microsoft Azure to make the audio. The server keeps the audio in a cache, but never logs the text or your IP address ([how it works](server/tts-proxy/README.md)).

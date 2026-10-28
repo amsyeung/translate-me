@@ -29,6 +29,12 @@ export interface Settings {
   disabledSites: string[]
   /** Keep a local list of popover translations (for review / export). */
   saveHistory: boolean
+  /** Offer proofread / rewrite for text typed in fields (needs Chrome's on-device model). */
+  writingTools: boolean
+  /** Show a small button in the corner of the text box being written in. */
+  writingBadge: boolean
+  /** For a single selected word, add its part of speech, meaning and an example (on-device model). */
+  wordMeaning: boolean
 
   pitch: number
   rate: number
@@ -56,11 +62,14 @@ export const DEFAULT_SETTINGS: Settings = {
   recentLangs: [],
 
   highlightEnabled: true,
-  triggerMode: 'auto',
+  triggerMode: 'icon',
   autoHideSeconds: 0,
   skipEditable: true,
   disabledSites: [],
   saveHistory: true,
+  writingTools: true,
+  writingBadge: true,
+  wordMeaning: true,
 
   pitch: 1,
   rate: 1,
@@ -142,7 +151,7 @@ export function isSiteDisabled(settings: Pick<Settings, 'disabledSites'>, hostna
 
 /** Labels for the trigger modes, shared by the popup and the options page. */
 export const TRIGGER_MODES: { id: TriggerMode; label: string; hint: string }[] = [
-  { id: 'auto', label: 'As soon as I select text', hint: 'The translation appears right after you select text.' },
   { id: 'icon', label: 'After I click a translate button', hint: 'A small button appears next to the selection; click it to translate. Least intrusive.' },
+  { id: 'auto', label: 'As soon as I select text', hint: 'The translation appears right after you select text.' },
   { id: 'modifier', label: 'Only when I hold Alt (⌥) while selecting', hint: 'Hold Alt (Option on Mac) while you select. Selecting normally does nothing.' },
 ]

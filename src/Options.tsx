@@ -3,6 +3,7 @@ import { setTargetLanguage, TRIGGER_MODES } from './core/settings'
 import { useSettings } from './hooks/useSettings'
 import { useShortcuts } from './hooks/useShortcuts'
 import HistorySection from './options/HistorySection'
+import OnDeviceAISection from './options/OnDeviceAISection'
 import VoiceSection from './options/VoiceSection'
 import { Row, Section, buttonClass, inputClass } from './options/ui'
 
@@ -113,6 +114,8 @@ export default function Options() {
           </button>
         </Row>
       </Section>
+
+      <OnDeviceAISection settings={settings} update={update} shortcut={shortcut} />
 
       <VoiceSection settings={settings} update={update} />
 

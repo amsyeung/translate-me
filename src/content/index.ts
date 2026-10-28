@@ -1,12 +1,15 @@
 import { MAX_SELECTION_CHARS } from '../constants'
 import { detectLanguage } from '../core/detect'
+import { dictionaryReady, isWordLike, lookupWord, sentenceAround } from '../core/dictionary'
 import { languageName, normalizeLanguageTag, preferredLanguages } from '../core/languages'
 import { requestSpeak, sendToBackground, type ContentRequest } from '../core/messages'
 import { DEFAULT_SETTINGS, isSiteDisabled, loadSettings, onSettingsChanged, setTargetLanguage, type Settings } from '../core/settings'
 import { translate, TranslateError } from '../core/translate'
+import { writingAvailability } from '../core/writer'
 import { copyToClipboard } from '../util/util'
 import { PageTranslator } from './pageTranslate'
 import { PopoverUI, type Anchor, type PopoverView } from './popover'
+import { WritingTools } from './writing'
 
 interface Session {
   id: number
@@ -20,6 +23,8 @@ interface Session {
   explicit: boolean
   view: PopoverView
   controller: AbortController
+  /** The sentence the selection sits in, for word meanings. */
+  context: string
 }
 
 const EDITABLE = 'input, textarea, [contenteditable=""], [contenteditable="true"], [contenteditable="plaintext-only"]'
@@ -28,11 +33,23 @@ function init() {
   let settings: Settings = DEFAULT_SETTINGS
   let session: Session | null = null
   let seq = 0
+  // Selecting text that's already in the target language normally shows nothing; explain it once per page.
+  let sameLanguageHintShown = false
 
-  loadSettings().then((s) => (settings = s))
+  // Writing tools only show up once the on-device model is ready; downloading it is the user's choice in Settings.
+  let writerReady = false
+  const refreshWriter = async () => {
+    writerReady = settings.writingTools && (await writingAvailability('en')) === 'available'
+  }
+
+  loadSettings().then((s) => {
+    settings = s
+    refreshWriter()
+  })
   onSettingsChanged((patch) => {
     settings = { ...settings, ...patch }
     if (!highlightActive() && session && !session.explicit) closeSession()
+    if ('writingTools' in patch) refreshWriter()
   })
 
   const alive = () => Boolean(chrome.runtime?.id) // false once the extension is reloaded/updated
@@ -60,6 +77,7 @@ function init() {
     onAction: () => session && run(session),
   })
   const pageTranslator = new PageTranslator(ui)
+  const writing = new WritingTools({ hints: () => hints(), badgeEnabled: () => writerReady && settings.writingBadge })
 
   function highlightActive() {
     return settings.highlightEnabled && !isSiteDisabled(settings, location.hostname)
@@ -104,7 +122,7 @@ function init() {
 
     // Explicit requests show the card immediately; automatic ones only once there's something worth showing,
     // so selecting text that turns out not to need translating doesn't flash a popover.
-    if (s.explicit || ui.isOpen) render(s, { status: 'working', srcLang: s.srcLang, tgtLang: s.tgtLang, message: undefined, action: undefined })
+    if (s.explicit || ui.isOpen) render(s, { status: 'working', srcLang: s.srcLang, tgtLang: s.tgtLang, message: undefined, action: undefined, word: null })
 
     try {
       let src = s.srcLang
@@ -117,22 +135,64 @@ function init() {
       if (!src) return fail(s, "Couldn't tell which language this is. Choose the source language above.")
 
       let tgt = s.tgtLang
+      // A single word that's already in the target language still gets its meaning (a monolingual dictionary).
+      let meaningOnly = false
       if (src === tgt) {
         // Bilingual pair: text already in the main target goes the other way.
         if (settings.pairLang && settings.pairLang !== src) tgt = settings.pairLang
-        else return fail(s, `This is already ${languageName(src)}. Choose another target language above.`)
+        else if (settings.wordMeaning && isWordLike(s.text, src) && (await dictionaryReady(src))) meaningOnly = true
+        else {
+          const message = `This is already ${languageName(src)}. Choose a language above to translate it into.`
+          if (s.explicit || ui.isOpen) return fail(s, message)
+          if (sameLanguageHintShown) return closeSession()
+          sameLanguageHintShown = true
+          return render(s, { status: 'error', message, translated: '' })
+        }
+        if (!current()) return
       }
 
       if (!ui.isOpen) render(s, { status: 'working', srcLang: s.srcLang, tgtLang: tgt })
-      const translated = await translate(s.text, src, tgt, {
-        signal,
-        onProgress: (progress) => current() && render(s, { status: 'downloading', progress }),
-      })
+      const translated = meaningOnly
+        ? s.text
+        : await translate(s.text, src, tgt, {
+            signal,
+            onProgress: (progress) => current() && render(s, { status: 'downloading', progress }),
+          })
       if (!current()) return
-      render(s, { status: 'done', translated, tgtLang: tgt, srcLang: s.srcLang })
+      render(s, { status: 'done', translated, tgtLang: tgt, srcLang: s.srcLang, word: null })
+
+      // A single word also gets its meaning from the on-device model, under the translation.
+      let meaning: { partOfSpeech?: string; definition?: string; example?: string } = {}
+      const wordLike = settings.wordMeaning && isWordLike(s.text, src)
+      const ready = wordLike && (await dictionaryReady(src))
+      if (wordLike && !ready) console.debug('[translate-me] Word meaning skipped: on-device model not ready for', src)
+      if (ready) {
+        if (!current()) return
+        render(s, { word: { status: 'loading' } })
+        const info = await lookupWord(s.text, src, { context: s.context, signal }).catch((err) => {
+          if ((err as Error)?.name !== 'AbortError') console.warn('[translate-me] Word meaning failed', err)
+          return null
+        })
+        if (!info && current()) console.warn('[translate-me] Word meaning: the model gave no usable answer for', s.text)
+        if (!current()) return
+        if (info) {
+          const sameLanguage = src.split('-')[0] === tgt.split('-')[0]
+          const [translatedSense, translatedDefinition] = sameLanguage
+            ? ['', '']
+            : await Promise.all([info.sense, info.definition].map((t) => (t ? translate(t, src, tgt, { signal }).catch(() => '') : '')))
+          if (!current()) return
+          render(s, { word: { status: 'done', ...info, translatedSense, translatedDefinition } })
+          const sense = translatedSense || info.sense
+          meaning = {
+            partOfSpeech: info.partOfSpeech,
+            definition: `${sense ? `${sense}: ` : ''}${translatedDefinition ? `${translatedDefinition} (${info.definition})` : info.definition}`,
+            example: info.example,
+          }
+        } else render(s, { word: null })
+      }
 
       if (settings.saveHistory && alive()) {
-        sendToBackground({ type: 'add-history', item: { text: s.text, translated, src, tgt, site: location.hostname, at: Date.now() } }).catch(() => {})
+        sendToBackground({ type: 'add-history', item: { text: s.text, translated, src, tgt, site: location.hostname, at: Date.now(), ...meaning } }).catch(() => {})
       }
     } catch (err) {
       if (!current() || (err as Error)?.name === 'AbortError') return
@@ -152,7 +212,7 @@ function init() {
     }
   }
 
-  function start(text: string, anchor: Anchor, options: { explicit: boolean; tgtLang?: string }) {
+  function start(text: string, anchor: Anchor, options: { explicit: boolean; tgtLang?: string; context?: string }) {
     const clipped = text.length > MAX_SELECTION_CHARS ? `${text.slice(0, MAX_SELECTION_CHARS)}…` : text
     const tgtLang = options.tgtLang ?? settings.tgtLang
     session?.controller.abort()
@@ -164,19 +224,20 @@ function init() {
       tgtLang,
       explicit: options.explicit,
       controller: new AbortController(),
+      context: options.context ?? '',
       view: { srcLang: settings.srcLang, detected: null, tgtLang, status: 'working', progress: 0, translated: '', sourceText: clipped },
     }
     run(session)
   }
 
   /** The current selection as text + an anchor that tracks it while scrolling. */
-  function readSelection(): { text: string; anchor: Anchor } | null {
+  function readSelection(): { text: string; anchor: Anchor; context: string } | null {
     const active = document.activeElement
     if (active instanceof HTMLTextAreaElement || (active instanceof HTMLInputElement && /^(text|search|url|email|)$/.test(active.type))) {
       const { selectionStart: a, selectionEnd: b } = active
       const text = a !== null && b !== null ? active.value.slice(a, b).trim() : ''
       if (!text) return null
-      return { text, anchor: { rect: () => active.getBoundingClientRect() } }
+      return { text, anchor: { rect: () => active.getBoundingClientRect() }, context: sentenceAround(active.value, text, active.value.indexOf(text, a ?? 0)) }
     }
 
     const sel = getSelection()
@@ -184,7 +245,10 @@ function init() {
     const text = sel.toString().trim()
     if (!text) return null
     const range = sel.getRangeAt(0).cloneRange()
+    const container = range.commonAncestorContainer
+    const block = (container instanceof Element ? container : container.parentElement)?.closest('p, li, td, th, dd, dt, blockquote, h1, h2, h3, h4, h5, h6, figcaption, div')
     return {
+      context: block ? sentenceAround(block.textContent ?? '', text) : '',
       text,
       anchor: {
         rect: () => {
@@ -213,20 +277,23 @@ function init() {
   window.addEventListener(
     'mouseup',
     (e) => {
-      if (e.button !== 0 || ui.contains(e) || !alive()) return
+      if (e.button !== 0 || ui.contains(e) || writing.contains(e) || !alive()) return
       // Let the browser finish updating the selection (double/triple click) first.
       setTimeout(() => {
+        const inEditable = selectionInEditable()
+        // Text the user is writing gets the writing tools button (proofread / rewrite).
+        if (inEditable && writerReady && !writing.isOpen) writing.offer({ x: e.clientX, y: e.clientY })
         if (!highlightActive()) return
         const picked = readSelection()
         if (!picked || !/\p{L}/u.test(picked.text)) return
-        if (settings.skipEditable && selectionInEditable()) return
+        if (settings.skipEditable && inEditable) return
         if (session && ui.isOpen && session.text === picked.text) return
 
-        if (settings.triggerMode === 'auto') start(picked.text, picked.anchor, { explicit: false })
+        if (settings.triggerMode === 'auto') start(picked.text, picked.anchor, { explicit: false, context: picked.context })
         else if (settings.triggerMode === 'modifier') {
-          if (e.altKey) start(picked.text, picked.anchor, { explicit: true })
+          if (e.altKey) start(picked.text, picked.anchor, { explicit: true, context: picked.context })
         } else {
-          ui.showIcon({ x: e.clientX, y: e.clientY }, () => start(picked.text, picked.anchor, { explicit: true }))
+          ui.showIcon({ x: e.clientX, y: e.clientY }, () => start(picked.text, picked.anchor, { explicit: true, context: picked.context }))
         }
       }, 10)
     },
@@ -236,6 +303,10 @@ function init() {
   window.addEventListener(
     'pointerdown',
     (e) => {
+      if (!writing.contains(e)) {
+        writing.hideTrigger()
+        if (writing.isOpen) writing.close()
+      }
       if (ui.contains(e)) return
       ui.hideIcon()
       if (ui.isOpen && !ui.isSticky) closeSession()
@@ -247,13 +318,32 @@ function init() {
     'keydown',
     (e) => {
       if (e.key !== 'Escape') return
+      if (writing.isTriggerVisible) writing.hideTrigger()
+      writing.hideBadge()
+      if (writing.isOpen) writing.close()
       if (ui.isIconVisible) ui.hideIcon()
       if (ui.isOpen) closeSession()
     },
     true
   )
 
+  // Typing again makes the offered selection stale; the corner badge follows the text box.
+  window.addEventListener(
+    'input',
+    (e) => {
+      if (writing.contains(e)) return
+      writing.hideTrigger()
+      writing.watch()
+    },
+    true
+  )
+  document.addEventListener('focusin', (e) => !writing.contains(e) && writing.watch(e.composedPath()[0] ?? e.target), true)
+  document.addEventListener('focusout', (e) => !writing.contains(e) && writing.unwatch(e.composedPath()[0] ?? e.target), true)
+
   const follow = () => {
+    writing.hideTrigger()
+    writing.reposition()
+    writing.watch()
     ui.hideIcon()
     if (ui.isOpen) ui.follow(closeSession)
   }
@@ -270,7 +360,13 @@ function init() {
       // The shortcut is broadcast to every frame; a frame that lost focus may still hold an old selection.
       if (msg.focusedOnly && !document.hasFocus()) return
       const picked = readSelection()
-      if (picked) start(picked.text, picked.anchor, { explicit: true, tgtLang: msg.tgtLang })
+      if (picked) start(picked.text, picked.anchor, { explicit: true, tgtLang: msg.tgtLang, context: picked.context })
+      return
+    }
+    if (msg.type === 'writing-tools') {
+      // Context menu / shortcut: the selection, or the whole focused field if nothing is selected.
+      if (msg.focusedOnly && !document.hasFocus()) return
+      writing.openForFocusedField()
       return
     }
     if (msg.type === 'translate-page' && window === window.top) {
