@@ -83,8 +83,8 @@ export default function OnDeviceAISection({
 
   return (
     <Section
-      title="Writing tools"
-      description="Proofread what you type, or rewrite it to sound friendly, professional or concise. Runs on your device with Chrome's built-in AI; nothing is sent anywhere."
+      title="On-device AI"
+      description="Writing tools and word meanings, powered by Chrome's built-in AI. Everything runs on your device; nothing is sent anywhere."
     >
       <Row label="Chrome's on-device AI" hint="Gemini Nano, built into Chrome">
         {state}
@@ -100,7 +100,13 @@ export default function OnDeviceAISection({
           Show ✍️ in the corner of the text box I&apos;m writing in
         </label>
       </Row>
-      <Row label="How to use" hint="English, Japanese and Spanish">
+      <Row label="Word meanings" hint="English, Japanese and Spanish words">
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" checked={settings.wordMeaning} onChange={(e) => update({ wordMeaning: e.target.checked })} />
+          When I select a single word, also show its meaning and an example
+        </label>
+      </Row>
+      <Row label="Writing tools: how to use" hint="English, Japanese and Spanish">
         <span className="w-full">
           Click ✍️ in the corner of a text box (checks everything in it), select some text and click ✍️, use the toolbar popup, right-click a text box and
           choose <em>Improve writing</em>, or press {shortcut('improve-writing')}.

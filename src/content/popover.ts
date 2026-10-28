@@ -2,6 +2,11 @@ import { SORTED_LANGUAGES, languageName } from '../core/languages'
 import { computeIconPosition, computePlacement, type Box } from './placement'
 import { ICONS, POPOVER_CSS } from './styles'
 
+/** Word meaning shown under the translation of a single word. */
+export type WordView =
+  | { status: 'loading' }
+  | { status: 'done'; partOfSpeech: string; sense: string; translatedSense: string; definition: string; translatedDefinition: string; example: string }
+
 export interface PopoverView {
   /** '' = auto-detect. */
   srcLang: string
@@ -15,6 +20,7 @@ export interface PopoverView {
   action?: string
   /** Text for the "listen to original" button. */
   sourceText: string
+  word?: WordView | null
 }
 
 export interface PopoverHandlers {
@@ -200,7 +206,8 @@ export class PopoverUI {
     this.body.replaceChildren()
     this.body.classList.toggle('dim', view.status === 'working' && Boolean(view.translated))
     if (view.translated && view.status !== 'error') {
-      this.body.textContent = view.translated
+      this.body.append(document.createTextNode(view.translated))
+      if (view.word) this.body.append(this.renderWord(view.word))
     } else if (view.status === 'downloading') {
       const p = Math.round(view.progress * 100)
       this.body.append(el('div', { class: 'status' }, `Downloading ${languageName(view.srcLang || view.detected)} → ${languageName(view.tgtLang)} model… ${p}%`))
@@ -227,6 +234,41 @@ export class PopoverUI {
     this.speakSrcBtn.disabled = !(view.srcLang || view.detected)
     this.hintEl.textContent = view.status === 'done' ? 'Esc to close' : ''
     if (!this.card.hidden) this.reposition()
+  }
+
+  /** Part of speech, the meaning (in the target language, with the original underneath) and an example. */
+  private renderWord(word: WordView): HTMLElement {
+    const box = el('div', { class: 'dict' })
+    if (word.status === 'loading') {
+      box.append(el('div', { class: 'status' }, 'Looking up the meaning…'))
+      return box
+    }
+    const line = el('div')
+    if (word.partOfSpeech) {
+      const pos = el('span', { class: 'pos' })
+      pos.textContent = word.partOfSpeech
+      line.append(pos)
+    }
+    // The meaning in this sentence ("河岸" for bank by a river), then the definition.
+    const sense = word.translatedSense || word.sense
+    if (sense) {
+      const strong = el('strong', { class: 'sense' })
+      strong.textContent = sense
+      line.append(strong, document.createTextNode(' — '))
+    }
+    line.append(document.createTextNode(word.translatedDefinition || word.definition))
+    box.append(line)
+    if (word.translatedDefinition && word.translatedDefinition !== word.definition) {
+      const original = el('div', { class: 'def-src' })
+      original.textContent = word.definition
+      box.append(original)
+    }
+    if (word.example) {
+      const example = el('div', { class: 'example' })
+      example.textContent = word.example
+      box.append(example)
+    }
+    return box
   }
 
   close() {

@@ -33,6 +33,8 @@ export interface Settings {
   writingTools: boolean
   /** Show a small button in the corner of the text box being written in. */
   writingBadge: boolean
+  /** For a single selected word, add its part of speech, meaning and an example (on-device model). */
+  wordMeaning: boolean
 
   pitch: number
   rate: number
@@ -67,6 +69,7 @@ export const DEFAULT_SETTINGS: Settings = {
   saveHistory: true,
   writingTools: true,
   writingBadge: true,
+  wordMeaning: true,
 
   pitch: 1,
   rate: 1,

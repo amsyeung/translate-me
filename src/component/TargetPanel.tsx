@@ -5,17 +5,20 @@ import { copyToClipboard } from '../util/util'
 import { requestSpeak } from '../core/messages'
 import { languageName } from '../core/languages'
 import type { TranslationState } from '../hooks/useTranslation'
+import type { WordMeaning } from '../hooks/useWordMeaning'
 
 export default function TargetPanel({
   language,
   onLanguageChange,
   recentLangs,
   state,
+  word,
 }: {
   language: string
   onLanguageChange: (l: string) => void
   recentLangs: string[]
   state: TranslationState
+  word?: WordMeaning | null
 }) {
   const text = state.translated
   const busy = state.status === 'working' || state.status === 'downloading'
@@ -45,6 +48,18 @@ export default function TargetPanel({
         {state.status === 'error' && <p className="text-sm text-amber-700 px-1 py-2">{state.error}</p>}
         {text && state.status !== 'error' && (
           <p className={`w-full font-medium text-lg px-1 py-2 leading-[1.25] whitespace-pre-wrap break-words ${busy ? 'opacity-50' : ''}`}>{text}</p>
+        )}
+        {text && word?.status === 'loading' && <p className="px-1 text-xs text-zinc-400">Looking up the meaning…</p>}
+        {text && word?.status === 'done' && (
+          <div className="mx-1 mt-1 border-t border-zinc-100 pt-2 text-sm">
+            <p>
+              {word.partOfSpeech && <span className="mr-1.5 italic text-zinc-400">{word.partOfSpeech}</span>}
+              {(word.translatedSense || word.sense) && <strong className="font-semibold">{word.translatedSense || word.sense} — </strong>}
+              {word.translatedDefinition || word.definition}
+            </p>
+            {word.translatedDefinition && word.translatedDefinition !== word.definition && <p className="text-xs text-zinc-500">{word.definition}</p>}
+            {word.example && <p className="mt-1 text-xs italic text-zinc-500">e.g. {word.example}</p>}
+          </div>
         )}
       </div>
 

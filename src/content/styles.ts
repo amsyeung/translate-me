@@ -77,6 +77,12 @@ option { color: #1f1f1f; background: #fff; }
 .status { color: var(--muted); font-size: 13px; }
 .status.warn { color: var(--warn); }
 button.action { margin-top: 8px; padding: 0 10px; border: 1px solid var(--border); color: var(--accent); font-weight: 600; }
+.dict { margin-top: 8px; padding-top: 6px; border-top: 1px solid var(--border); font-size: 13.5px; white-space: normal; }
+.dict .pos { font-style: italic; color: var(--muted); margin-right: 6px; }
+.dict .sense { font-weight: 600; }
+.dict .def-src { color: var(--muted); font-size: 12.5px; }
+.dict .example { color: var(--muted); font-size: 12.5px; font-style: italic; margin-top: 3px; }
+.dict .example::before { content: "e.g. "; font-style: normal; }
 .bar { height: 3px; margin-top: 6px; border-radius: 2px; background: var(--border); overflow: hidden; }
 .bar > i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .2s; }
 

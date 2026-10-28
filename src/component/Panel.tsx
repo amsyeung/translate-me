@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from '../hooks/useTranslation'
+import { useWordMeaning } from '../hooks/useWordMeaning'
 import { useSettings } from '../hooks/useSettings'
 import { isTranslatorSupported } from '../core/translate'
 import { setTargetLanguage } from '../core/settings'
@@ -28,6 +29,7 @@ export default function Panel() {
   }
 
   const state = useTranslation(sourceText, srcLang, tgtLang)
+  const word = useWordMeaning(sourceText, srcLang || state.sourceLang, tgtLang, loaded && settings.wordMeaning)
   const canSwap = state.status === 'done' && Boolean(state.translated) && Boolean(state.sourceLang)
 
   const chooseTarget = (lang: string) => {
@@ -89,7 +91,7 @@ export default function Panel() {
       <SourcePanel language={srcLang} onLanguageChange={setSrcLang} text={sourceText} onTextChange={setSourceText} state={state} />
       <WritingBar text={sourceText} lang={srcLang || state.detection?.language || null} enabled={settings.writingTools} onUse={setSourceText} />
       <Divider onClickAction={swap} allowToggle={canSwap} withButton={true} />
-      <TargetPanel language={tgtLang} onLanguageChange={chooseTarget} recentLangs={settings.recentLangs} state={state} />
+      <TargetPanel language={tgtLang} onLanguageChange={chooseTarget} recentLangs={settings.recentLangs} state={state} word={word} />
     </>
   )
 }

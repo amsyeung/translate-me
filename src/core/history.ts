@@ -8,6 +8,10 @@ export interface HistoryItem {
   /** Hostname the text was selected on. */
   site: string
   at: number
+  /** Word meaning (single words only, when the on-device model is available). */
+  partOfSpeech?: string
+  definition?: string
+  example?: string
 }
 
 const KEY = 'history'
@@ -31,9 +35,11 @@ export async function clearHistory(): Promise<void> {
   await chrome.storage.local.remove(KEY)
 }
 
-/** CSV with a header row; the first two columns import straight into Anki as front/back. */
+/** CSV with a header row; the first two columns import straight into Anki as front/back, word meanings follow at the end. */
 export function historyToCsv(items: HistoryItem[]): string {
   const cell = (v: string) => `"${v.replace(/"/g, '""')}"`
-  const rows = items.map((h) => [h.text, h.translated, h.src, h.tgt, h.site, new Date(h.at).toISOString()].map(cell).join(','))
-  return ['text,translation,source_lang,target_lang,site,date', ...rows].join('\r\n')
+  const rows = items.map((h) =>
+    [h.text, h.translated, h.src, h.tgt, h.site, new Date(h.at).toISOString(), h.partOfSpeech ?? '', h.definition ?? '', h.example ?? ''].map(cell).join(',')
+  )
+  return ['text,translation,source_lang,target_lang,site,date,part_of_speech,definition,example', ...rows].join('\r\n')
 }
