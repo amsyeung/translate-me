@@ -49,8 +49,9 @@ export default function TargetPanel({
         {text && state.status !== 'error' && (
           <p className={`w-full font-medium text-lg px-1 py-2 leading-[1.25] whitespace-pre-wrap break-words ${busy ? 'opacity-50' : ''}`}>{text}</p>
         )}
-        {text && word?.status === 'loading' && <p className="px-1 text-xs text-zinc-400">Looking up the meaning…</p>}
-        {text && word?.status === 'done' && (
+        {word?.status === 'loading' && <p className="px-1 text-xs text-zinc-400">Looking up the meaning…</p>}
+        {/* Also shown when the word is already in the target language: then it's a monolingual dictionary. */}
+        {word?.status === 'done' && (
           <div className="mx-1 mt-1 border-t border-zinc-100 pt-2 text-sm">
             <p>
               {word.partOfSpeech && <span className="mr-1.5 italic text-zinc-400">{word.partOfSpeech}</span>}

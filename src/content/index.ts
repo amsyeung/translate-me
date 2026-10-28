@@ -133,17 +133,23 @@ function init() {
       if (!src) return fail(s, "Couldn't tell which language this is. Choose the source language above.")
 
       let tgt = s.tgtLang
+      // A single word that's already in the target language still gets its meaning (a monolingual dictionary).
+      let meaningOnly = false
       if (src === tgt) {
         // Bilingual pair: text already in the main target goes the other way.
         if (settings.pairLang && settings.pairLang !== src) tgt = settings.pairLang
+        else if (settings.wordMeaning && isWordLike(s.text, src) && (await dictionaryReady(src))) meaningOnly = true
         else return fail(s, `This is already ${languageName(src)}. Choose another target language above.`)
+        if (!current()) return
       }
 
       if (!ui.isOpen) render(s, { status: 'working', srcLang: s.srcLang, tgtLang: tgt })
-      const translated = await translate(s.text, src, tgt, {
-        signal,
-        onProgress: (progress) => current() && render(s, { status: 'downloading', progress }),
-      })
+      const translated = meaningOnly
+        ? s.text
+        : await translate(s.text, src, tgt, {
+            signal,
+            onProgress: (progress) => current() && render(s, { status: 'downloading', progress }),
+          })
       if (!current()) return
       render(s, { status: 'done', translated, tgtLang: tgt, srcLang: s.srcLang, word: null })
 
