@@ -31,6 +31,8 @@ export interface Settings {
   saveHistory: boolean
   /** Offer proofread / rewrite for text typed in fields (needs Chrome's on-device model). */
   writingTools: boolean
+  /** Show a small button in the corner of the text box being written in. */
+  writingBadge: boolean
 
   pitch: number
   rate: number
@@ -64,6 +66,7 @@ export const DEFAULT_SETTINGS: Settings = {
   disabledSites: [],
   saveHistory: true,
   writingTools: true,
+  writingBadge: true,
 
   pitch: 1,
   rate: 1,

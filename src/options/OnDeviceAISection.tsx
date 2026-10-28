@@ -95,10 +95,15 @@ export default function OnDeviceAISection({
           <input type="checkbox" checked={settings.writingTools} onChange={(e) => update({ writingTools: e.target.checked })} />
           Offer writing tools when I select text in a text box
         </label>
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" checked={settings.writingBadge} disabled={!settings.writingTools} onChange={(e) => update({ writingBadge: e.target.checked })} />
+          Show ✍️ in the corner of the text box I&apos;m writing in
+        </label>
       </Row>
       <Row label="How to use" hint="English, Japanese and Spanish">
         <span className="w-full">
-          Select text you&apos;ve typed and click ✍️, right-click a text box and choose <em>Improve writing</em>, or press {shortcut('improve-writing')}.
+          Click ✍️ in the corner of a text box (checks everything in it), select some text and click ✍️, use the toolbar popup, right-click a text box and
+          choose <em>Improve writing</em>, or press {shortcut('improve-writing')}.
         </span>
         <span className="w-full text-zinc-500">{WRITING_MODES.map((m) => m.label).join(' · ')}</span>
       </Row>

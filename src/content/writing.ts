@@ -105,6 +105,10 @@ function applyToTarget(t: Target, text: string): boolean {
 export class WritingTools {
   readonly host: HTMLElement
   private trigger: HTMLButtonElement
+  /** Corner button on the focused text box: checks the whole box without selecting anything. */
+  private badge: HTMLButtonElement
+  private field: HTMLElement | null = null
+  private badgeEnabled: () => boolean
   private card: HTMLDivElement
   private tabs = new Map<WritingMode, HTMLButtonElement>()
   private body: HTMLDivElement
@@ -118,8 +122,9 @@ export class WritingTools {
   private controller: AbortController | null = null
   private hints: () => string[]
 
-  constructor(options: { hints: () => string[] }) {
+  constructor(options: { hints: () => string[]; badgeEnabled: () => boolean }) {
     this.hints = options.hints
+    this.badgeEnabled = options.badgeEnabled
     this.host = document.createElement('translate-me-writer')
     this.host.style.cssText = 'all:initial;position:fixed;top:0;left:0;width:0;height:0;z-index:2147483647;'
     const root = this.host.attachShadow({ mode: 'closed' })
@@ -133,6 +138,13 @@ export class WritingTools {
       const target = this.pending
       this.hideTrigger()
       if (target) this.open(target)
+    })
+
+    this.badge = el('button', { class: 'field-badge', title: 'Check writing', 'aria-label': 'Check writing' }, ICONS.pen)
+    this.badge.hidden = true
+    this.badge.addEventListener('click', () => {
+      this.hideBadge()
+      this.openForFocusedField()
     })
 
     this.card = el('div', { class: 'card writer', role: 'dialog', 'aria-label': 'Writing tools' })
@@ -168,12 +180,12 @@ export class WritingTools {
 
     this.card.append(head, this.body, foot)
     // Keep focus (and the visible selection) in the page's text field while using the buttons.
-    for (const node of [this.trigger, this.card]) {
+    for (const node of [this.trigger, this.badge, this.card]) {
       node.addEventListener('mousedown', (e) => {
         if ((e.target as Element).closest('button')) e.preventDefault()
       })
     }
-    wrap.append(this.trigger, this.card)
+    wrap.append(this.trigger, this.badge, this.card)
     root.append(style, wrap)
   }
 
@@ -211,6 +223,46 @@ export class WritingTools {
     this.pending = null
   }
 
+  // ---------------------------------------------------------------- corner badge
+
+  /** A text area or rich-text editor the user is writing in (not one-line inputs such as search boxes). */
+  private static writableField(node: EventTarget | null): HTMLElement | null {
+    if (node instanceof HTMLTextAreaElement) return node.readOnly || node.disabled ? null : node
+    return node instanceof HTMLElement && node.isContentEditable ? editableRoot(node) : null
+  }
+
+  /** Called on focusin / input / scroll: show or move the corner button of the focused text box. */
+  watch(node?: EventTarget | null) {
+    if (node !== undefined) this.field = WritingTools.writableField(node)
+    const field = this.field
+    if (!field || !field.isConnected || !this.badgeEnabled() || !this.card.hidden) return this.hideBadge()
+    const text = field instanceof HTMLTextAreaElement ? field.value : field.innerText
+    // Enough to be worth checking: a short sentence, not a word or two.
+    if (text.trim().length < 12) return this.hideBadge()
+    const r = field.getBoundingClientRect()
+    const vp = viewport()
+    if (r.width < 120 || r.bottom < 0 || r.top > vp.height) return this.hideBadge()
+    this.mount()
+    const size = 24
+    // Clear of a textarea's resize grip.
+    const left = Math.min(r.right, vp.width) - size - (field instanceof HTMLTextAreaElement ? 20 : 6)
+    const top = Math.min(r.bottom, vp.height) - size - 6
+    this.badge.style.left = `${Math.max(left, r.left + 4)}px`
+    this.badge.style.top = `${Math.max(top, r.top + 4)}px`
+    this.badge.hidden = false
+  }
+
+  /** The focused text box lost focus (clicking the badge keeps focus, so this means the user moved on). */
+  unwatch(node: EventTarget | null) {
+    if (WritingTools.writableField(node) !== this.field) return
+    this.field = null
+    this.hideBadge()
+  }
+
+  hideBadge() {
+    this.badge.hidden = true
+  }
+
   /** Open straight away (context menu, shortcut): the selection, or the whole field if nothing is selected. */
   openForFocusedField(): boolean {
     const target = captureTarget(true)
@@ -221,6 +273,7 @@ export class WritingTools {
 
   private open(target: Target) {
     this.mount()
+    this.hideBadge()
     this.target = target
     this.card.hidden = false
     this.run('proofread')
@@ -232,6 +285,7 @@ export class WritingTools {
     this.card.hidden = true
     this.target = null
     this.result = ''
+    this.watch()
   }
 
   private setStatus(message: string, warn = false) {

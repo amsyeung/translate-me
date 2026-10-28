@@ -72,7 +72,7 @@ function init() {
     onAction: () => session && run(session),
   })
   const pageTranslator = new PageTranslator(ui)
-  const writing = new WritingTools({ hints: () => hints() })
+  const writing = new WritingTools({ hints: () => hints(), badgeEnabled: () => writerReady && settings.writingBadge })
 
   function highlightActive() {
     return settings.highlightEnabled && !isSiteDisabled(settings, location.hostname)
@@ -268,6 +268,7 @@ function init() {
     (e) => {
       if (e.key !== 'Escape') return
       if (writing.isTriggerVisible) writing.hideTrigger()
+      writing.hideBadge()
       if (writing.isOpen) writing.close()
       if (ui.isIconVisible) ui.hideIcon()
       if (ui.isOpen) closeSession()
@@ -275,12 +276,23 @@ function init() {
     true
   )
 
-  // Typing again makes the offered selection stale.
-  window.addEventListener('input', (e) => !writing.contains(e) && writing.hideTrigger(), true)
+  // Typing again makes the offered selection stale; the corner badge follows the text box.
+  window.addEventListener(
+    'input',
+    (e) => {
+      if (writing.contains(e)) return
+      writing.hideTrigger()
+      writing.watch()
+    },
+    true
+  )
+  document.addEventListener('focusin', (e) => !writing.contains(e) && writing.watch(e.composedPath()[0] ?? e.target), true)
+  document.addEventListener('focusout', (e) => !writing.contains(e) && writing.unwatch(e.composedPath()[0] ?? e.target), true)
 
   const follow = () => {
     writing.hideTrigger()
     writing.reposition()
+    writing.watch()
     ui.hideIcon()
     if (ui.isOpen) ui.follow(closeSession)
   }

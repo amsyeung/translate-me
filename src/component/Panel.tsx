@@ -7,6 +7,7 @@ import SourcePanel from './SourcePanel'
 import TargetPanel from './TargetPanel'
 import Divider from './Divider'
 import HighlightBar from './HighlightBar'
+import WritingBar from './WritingBar'
 
 // sidepanel.html is the same app with this class on <body>.
 const isSidePanel = document.body.classList.contains('side-panel')
@@ -86,6 +87,7 @@ export default function Panel() {
       <HighlightBar settings={settings} update={update} />
 
       <SourcePanel language={srcLang} onLanguageChange={setSrcLang} text={sourceText} onTextChange={setSourceText} state={state} />
+      <WritingBar text={sourceText} lang={srcLang || state.detection?.language || null} enabled={settings.writingTools} onUse={setSourceText} />
       <Divider onClickAction={swap} allowToggle={canSwap} withButton={true} />
       <TargetPanel language={tgtLang} onLanguageChange={chooseTarget} recentLangs={settings.recentLangs} state={state} />
     </>

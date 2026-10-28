@@ -164,4 +164,17 @@ export const WRITER_CSS = `
 .note { color: var(--muted); font-size: 12px; margin-top: 6px; }
 button.primary { background: var(--accent); color: #fff; padding: 0 12px; font-weight: 600; }
 button.primary:hover { background: var(--accent); color: #fff; filter: brightness(1.08); }
+.field-badge {
+  position: fixed;
+  width: 24px; height: 24px; min-width: 24px; padding: 0;
+  border-radius: 50%;
+  background: var(--bg);
+  color: var(--accent);
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(0,0,0,.15);
+  opacity: .75;
+  pointer-events: auto;
+}
+.field-badge:hover { opacity: 1; background: var(--hover); }
+.field-badge svg { width: 14px; height: 14px; }
 `
